@@ -7,5 +7,7 @@ require "http/parser"
 
 require "jaguar/reactor"
 require "jaguar/server"
-require "jaguar/request"
-require "jaguar/response"
+
+
+require "jaguar/http1/request"
+require "jaguar/http1/response"

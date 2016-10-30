@@ -1,4 +1,4 @@
-require "jaguar/request/parser"
+require "jaguar/http1/parser"
 
 module Jaguar
   class Request
@@ -21,7 +21,6 @@ module Jaguar
         while !((read(BUFFER_SIZE) == :eof) || @parser.finished?)
           chunk = @parser.chunk
           y << chunk
-
         end
         @parser.reset
       end
