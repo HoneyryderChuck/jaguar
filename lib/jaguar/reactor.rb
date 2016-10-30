@@ -21,13 +21,17 @@ module Jaguar
 
     def handle_connection(sock, action)
       HTTP2::ServerProxy.new(sock) do |stream|
-        req = HTTP2::Request.new(stream.headers, stream.buffer)
-        res = action.call(req)
+        HTTP2::Request.new(stream) do |req|
+          res = action.call(req)
 
-        response = HTTP2::Response.new(res, stream.stream)
-        response.flush
+          response = HTTP2::Response.new(res, stream)
+          response.flush
+        end
         # TODO: PUSH data here
       end
+    rescue Errno::ECONNRESET
+      puts "socket closed by the client"
+      sock.close
     end
 
 #    def handle_connection(sock, action)

@@ -17,7 +17,7 @@ module Jaguar::HTTP2
       @stream.headers(headers, end_stream: false)
       @proxy.body.each do |chunk|
         @stream.data(chunk, end_stream: false)
-        @stream.data("\0")
+        @stream.data("")
       end
     end
 

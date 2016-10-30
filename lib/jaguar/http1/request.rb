@@ -1,16 +1,23 @@
 require "jaguar/http1/parser"
 
 module Jaguar::HTTP1
+  #
+  # the request MUST respond to:
+  # * #verb (returns a String ("GET", "POST"...)
+  # * #request_url (returns a URL)
+  # * #headers (returns an headers hash)
+  # * #body (returns an Enumerable)
+  # 
   class Request
     extend Forwardable
 
     BUFFER_SIZE = 16_384
 
-    def_delegators :@parser, :method, :http_version,
+    def_delegators :@parser, :verb, :http_version,
                              :request_url, :headers
     alias_method :version, :http_version
 
-    def initialize(sock, **options)
+    def initialize(sock)
       @sock = sock
       @parser = Parser.new
       read_headers!
