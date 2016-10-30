@@ -1,6 +1,6 @@
 require "jaguar/http1/parser"
 
-module Jaguar
+module Jaguar::HTTP1
   class Request
     extend Forwardable
 

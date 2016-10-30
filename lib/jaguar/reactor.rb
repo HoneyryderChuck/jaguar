@@ -20,9 +20,9 @@ module Jaguar
     private
 
     def handle_connection(sock, action)
-      req = Request.new(sock)
+      req = HTTP1::Request.new(sock)
       res = action.call(req)
-      Response.new(res).each do |chunk|
+      HTTP1::Response.new(res).each do |chunk|
         sock << chunk
       end
       sock.close # TODO: keep-alive 

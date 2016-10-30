@@ -1,4 +1,4 @@
-module Jaguar
+module Jaguar::HTTP1
   class Response
     CRLF = "\r\n"
 
