@@ -16,4 +16,5 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "celluloid-io", ">= 0.17"
   gem.add_dependency "http_parser.rb"#,  "~> 0.6.0"
+  gem.add_dependency "http-2"
 end
