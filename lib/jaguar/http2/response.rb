@@ -1,23 +1,20 @@
 module Jaguar::HTTP2
   class Response
-    def initialize(proxyres, stream)
-      @proxy = proxyres
-      @stream = stream
+    attr_accessor :status, :headers, :body
+
+    INITIALBODY=[]
+
+    def initialize
+      @status = 200
+      @headers = {}
+      @body = INITIALBODY
     end
 
-    def status
-      @proxy.status
-    end
-
-    def headers
-      {":status" => status.to_s}.merge(@proxy.headers)
-    end
-
-    def flush
-      @stream.headers(headers, end_stream: false)
-      @proxy.body.each do |chunk|
-        @stream.data(chunk, end_stream: false)
-        @stream.data("")
+    def flush(stream)
+      stream.headers({":status" => @status.to_s}.merge(@headers), end_stream: false)
+      @body.each do |chunk|
+        stream.data(chunk, end_stream: false)
+        stream.data("")
       end
     end
 

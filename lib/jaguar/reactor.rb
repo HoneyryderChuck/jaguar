@@ -22,10 +22,9 @@ module Jaguar
     def handle_connection(sock, action)
       HTTP2::ServerProxy.new(sock) do |stream|
         HTTP2::Request.new(stream) do |req|
-          res = action.call(req)
-
-          response = HTTP2::Response.new(res, stream)
-          response.flush
+          res = HTTP2::Response.new
+          action.call(req, res)
+          res.flush(stream)
         end
         # TODO: PUSH data here
       end
