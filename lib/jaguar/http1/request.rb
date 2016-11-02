@@ -16,6 +16,7 @@ module Jaguar::HTTP1
     def_delegators :@parser, :verb, :http_version,
                              :request_url, :headers
     alias_method :version, :http_version
+    alias_method :url, :request_url
 
     def initialize(sock)
       @sock = sock

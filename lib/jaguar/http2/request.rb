@@ -25,14 +25,14 @@ module Jaguar::HTTP2
     end
 
     def version
-
+      "2"
     end
  
     def verb 
       @headers[":method"]
     end
 
-    def request_url
+    def url
       @headers[":path"]
     end
 
