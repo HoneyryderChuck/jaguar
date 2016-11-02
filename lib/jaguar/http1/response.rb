@@ -2,30 +2,28 @@ module Jaguar::HTTP1
   class Response
     CRLF = "\r\n"
 
-    def initialize(proxyres, sock)
-      @version = "HTTP/1.1"
-      @status = proxyres.status
-      @reason = "OK"
-      @headers = proxyres.headers
-      @body   = proxyres.body
-      @proxy = proxyres
-      @sock = sock
+    INITIALBODY=[]
 
-      @done = false
+    attr_accessor :status, :headers, :body
+
+    def initialize
+      @version = "HTTP/1.1"
+      @status = 200
+      @reason = "OK"
+      @headers = {} 
+      @body   = INITIALBODY 
     end
 
-    def flush
+    def flush(sock)
       return if @done
-      @sock << "#{@version} #{@status} #{@reason}#{CRLF}"
+      sock << "#{@version} #{@status} #{@reason}#{CRLF}"
       @headers.each do |k, v|
-        @sock << "#{k}: #{v}#{CRLF}"
+        sock << "#{k}: #{v}#{CRLF}"
       end
       @body.each do |chunk|
-        @sock << chunk
+        sock << chunk
       end
-      @sock << "0#{CRLF * 2}"
-    ensure
-      @done = true
+      sock << "0#{CRLF * 2}"
     end
 
   end
