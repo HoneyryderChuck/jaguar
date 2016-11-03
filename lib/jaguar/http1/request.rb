@@ -14,9 +14,8 @@ module Jaguar::HTTP1
     BUFFER_SIZE = 16_384
 
     def_delegators :@parser, :verb, :http_version,
-                             :request_url, :headers
+                             :url, :headers
     alias_method :version, :http_version
-    alias_method :url, :request_url
 
     def initialize(sock)
       @sock = sock
@@ -32,7 +31,7 @@ module Jaguar::HTTP1
         end
         @parser.reset
       end
-    end 
+    end
 
     private
 

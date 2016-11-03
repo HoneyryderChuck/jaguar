@@ -21,6 +21,10 @@ module Jaguar::HTTP1
       @parser.http_version.join(".")
     end
 
+    def url
+      @parser.request_url
+    end
+
     def verb 
       @parser.http_method
     end
