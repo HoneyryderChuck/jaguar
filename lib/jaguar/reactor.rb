@@ -4,7 +4,7 @@ module Jaguar
 
     def initialize(proxy, **options)
       @options = options
-      @server = TCPServer.new(proxy)
+      @server = Socket.try_convert(proxy)
       @server.listen(1024)
     end
 
