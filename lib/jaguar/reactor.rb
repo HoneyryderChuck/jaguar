@@ -2,9 +2,9 @@ module Jaguar
   class Reactor 
     include Celluloid::IO
 
-    def initialize(host, port, **options)
+    def initialize(proxy, **options)
       @options = options
-      @server = TCPServer.new(host, port)
+      @server = TCPServer.new(proxy)
       @server.listen(1024)
     end
 

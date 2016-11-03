@@ -1,9 +1,9 @@
 module Jaguar
   class Server
 
-    def initialize(host, port, **options)
+    def initialize(server_proxy, **options)
       @options = options
-      @reactor = Reactor.new(host, port, **options)
+      @reactor = Reactor.new(server_proxy, **options)
       @action = options.fetch(:action)
     end
 

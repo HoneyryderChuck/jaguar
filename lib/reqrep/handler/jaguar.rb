@@ -13,7 +13,7 @@ module ReqRep
         host = options.delete(:host)
         port = options.delete(:port)
 
-        server = ::Jaguar::Server.new(host, port, options.merge(action: app))               
+        server = ::Jaguar::Server.new(TCPServer.new(host, port), options.merge(action: app))               
 
         begin
           server.run
