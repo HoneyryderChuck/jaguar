@@ -17,9 +17,10 @@ module Jaguar::HTTP1
                              :url, :headers
     alias_method :version, :http_version
 
-    def initialize(sock)
+    def initialize(sock, initial: nil)
       @sock = sock
       @parser = Parser.new
+      @parser << initial if initial
       read_headers!
     end
 
