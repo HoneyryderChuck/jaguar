@@ -23,7 +23,7 @@ module Jaguar::HTTP1
       @body.each do |chunk|
         sock << chunk
       end
-      sock << "0#{CRLF * 2}"
+      sock << "#{CRLF * 2}"
     end
 
   end
