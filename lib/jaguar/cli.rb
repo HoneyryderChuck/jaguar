@@ -6,27 +6,27 @@ module Jaguar
     }
 
     def initialize(argv = ARGV)
-      @options = DEAULT_OPTIONS.merge(setup_options(argv))
+      @options = DEFAULT_OPTIONS.merge(setup_options(argv))
+      @action = begin
+        blk = File.read(argv.last)
+        action = eval "->(req, rep) {\n" + blk + "\n}"
+        action
+      end
     end
 
     def run
-
+      uri = @options.delete(:uri)
+      container = Container.new(uri, @options)
+      container.run(&@action)
     end
 
     def setup_options(argv)
       OptionParser.new do |o|
-        o.on "-b", 
-             "--bind HOST", 
-             "host to bind to (127.0.0.1, 0.0.0.0, cookiemonster.com)" do |host|
-          @options[:host] = host
+        o.on "-u", 
+             "--uri URI", 
+             "uri to bind to (http://127.0.0.1, unix://0.0.0.0, https://cookiemonster.com:8080)" do |uri|
+          @options[:uri] = uri
         end
-
-        o.on "-p", 
-             "--port PORT", Integer, 
-             "port to bind to" do |port|
-          @options[:port] = port
-        end
-
     
         o.on "--debug", "activate server debugging mode" do
           @options[:log_level] = Logger::DEBUG

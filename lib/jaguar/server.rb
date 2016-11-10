@@ -4,16 +4,15 @@ module Jaguar
     def initialize(server_proxy, **options)
       @options = options
       @reactor = Reactor.new(server_proxy, **options)
-      @action = options.fetch(:action)
     end
 
-    def run
-      @reactor.run(@action)
+    def run(&action)
+      @reactor.async(:run, action)
     end
 
 
     def stop
-      @reactor.stop if @reactor
+      @reactor.stop if @reactor and @reactor.alive?
     end
 
   end

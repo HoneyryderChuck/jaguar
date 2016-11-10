@@ -1,13 +1,20 @@
+require "uri"
+
 module Jaguar
   class Container
-    def initialize
+    def initialize(uri, **options)
+      @uri = URI.parse(uri)
+      @options = options
       @__r__, @__w__ = IO.pipe
     end
 
 
-    def run
+    def run(&action)
       set_signal_handlers
 
+      server = build_server
+
+      server.run(&action)
 
       while @__r__.wait_readable
         signal = @__r__.gets.strip
@@ -15,11 +22,22 @@ module Jaguar
       end
     rescue Interrupt
       STDOUT.puts "Jaguar was put to sleep..."
-      exit(0)
+      server.stop if server
     end
 
-
     private
+
+    def build_server
+      sock_server = case @uri.scheme
+      when "http"
+        TCPServer.new(@uri.host, @uri.port)
+      when "https"
+      when "unix"
+      else
+        raise "unsupported scheme type for uri (#{@uri.to_s})"
+      end
+      Server.new(sock_server, @options)
+    end
 
     def handle_signal(signal)
       case signal
@@ -39,5 +57,6 @@ module Jaguar
           STDERR.puts "#{signal}: signal not supported"
         end
       end
+    end
   end
 end

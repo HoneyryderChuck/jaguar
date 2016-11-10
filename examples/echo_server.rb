@@ -11,10 +11,9 @@ APP = ->(req, res) do
   res.body = [body]
 end
 
-tcp_server = TCPServer.new("localhost", 9292)
-server = Jaguar::Server.new(tcp_server, action: APP)
-
+uri = "http://localhost:9292"
+container = Jaguar::Container.new(uri)
 puts "server is on..."
-server.run
+container.run(&APP)
 
 
