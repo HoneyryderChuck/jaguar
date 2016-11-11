@@ -6,16 +6,12 @@ class HTTP1PlainHTTPServer < ContainerTest
     @app = Jaguar::Container.new("http://127.0.0.1:8989")
   end
 
-  def client_sock
-    TCPSocket.new("127.0.0.1", 8989)
-  end
-
   def test_get
     server = @app.send(:build_server)
     server.run(&method(:get_app))
 
     sock = client_sock
-    sock.write(get_request)
+    get_request(sock)
 
     response = sock.read(1024)
     assert response == get_response_success, "response is unexpected"
@@ -27,6 +23,10 @@ class HTTP1PlainHTTPServer < ContainerTest
 
 
   private
+
+  def client_sock
+    TCPSocket.new("127.0.0.1", 8989)
+  end
 
   def get_app(req, rep)
     if req.url == "/"
@@ -40,8 +40,8 @@ class HTTP1PlainHTTPServer < ContainerTest
   end
 
 
-  def get_request
-    "GET / HTTP/1.1\r\n\r\n"  
+  def get_request(client)
+    client.write "GET / HTTP/1.1\r\n\r\n"  
   end
 
   def get_response_success

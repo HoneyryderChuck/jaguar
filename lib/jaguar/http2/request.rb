@@ -47,7 +47,7 @@ module Jaguar::HTTP2
     end
 
     def on_headers(h)
-      @headers = Hash[h] 
+      @headers = Headers.new(Hash[h]) 
     end
 
     def on_data(data)

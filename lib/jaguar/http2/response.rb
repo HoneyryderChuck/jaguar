@@ -6,7 +6,7 @@ module Jaguar::HTTP2
 
     def initialize
       @status = 200
-      @headers = {}
+      @headers = Headers.new
       @body = INITIALBODY
     end
 
