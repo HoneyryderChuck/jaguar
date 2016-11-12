@@ -11,5 +11,9 @@ class Headers
     @headers[k] = String(v)
   end
 
+  def each(&act)
+    @headers.each(&act)
+  end
+
   def to_hash ; @headers ; end
 end
