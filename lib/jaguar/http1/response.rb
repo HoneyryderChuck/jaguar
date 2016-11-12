@@ -1,4 +1,5 @@
 module Jaguar::HTTP1
+  CRLF = "\r\n"
   class Response
 
     INITIALBODY=[]
