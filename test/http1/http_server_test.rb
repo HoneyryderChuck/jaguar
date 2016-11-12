@@ -7,12 +7,10 @@ class Jaguar::HTTP1::HTTPServerTest < ContainerTest
     server.run(&method(:get_app))
 
     client = http_client
-    get_request(client)
-
-    response = client.response
-    assert response.status == 200, "response is unexpected"
-    assert response.headers["Content-Type"] == "5", "response is unexpected"
-    assert response.body.join == "Right", "response is unexpected"
+    response = get_request(client)
+    assert response.status == 200, "response status code is unexpected"
+    assert response.headers["content-length"].include?("5"), "response content length is unexpected"
+    assert response.body == "Right", "response body is unexpected"
   ensure
     client.close if client
     server.stop if server
@@ -32,27 +30,24 @@ class Jaguar::HTTP1::HTTPServerTest < ContainerTest
 
   def http_client
     uri = URI(server_uri)
-    sock = TCPSocket.new(uri.host, uri.port)
-    Jaguar::HTTP1::Client.new(sock)
+    conn = Net::HTTP.new(uri.host, uri.port)
+    Jaguar::HTTP1::Client.new(conn)
   end
 
   def get_app(req, rep)
     if req.url == "/"
       rep.body = %w(Right)
-      rep.headers["Content-Type"] = rep.body.map(&:bytesize).reduce(:+)
+      rep.headers["Content-Length"] = rep.body.map(&:bytesize).reduce(:+)
     else
       rep.status = 400
-      rep.headers["Content-Type"] = rep.body.map(&:bytesize).reduce(:+)
+      rep.headers["Content-Length"] = rep.body.map(&:bytesize).reduce(:+)
       rep.body = %w(Wrong)
     end
   end
 
 
   def get_request(client)
-    headers = { ":method" => "GET", ":path" => "/", "accept" => "*/*"}
-    client.write(headers)
-  end
-  def get_response_success
-    "HTTP/1.1 200 OK\r\nContent-Type: 5\r\nRight\r\n\r\n"
+    headers = { "accept" => "*/*"}
+    client.request(:get, "#{server_uri}/", headers: headers)
   end
 end

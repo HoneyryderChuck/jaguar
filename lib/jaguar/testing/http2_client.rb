@@ -16,11 +16,21 @@ module Jaguar::HTTP2
     def close
       @sock.close
     end
- 
-    def write(h)
-      @stream.headers(h, end_stream: true)
+
+    def request(verb, path, headers: {})
+      uri = URI(path)
+      headers[":scheme"] = uri.scheme
+      headers[":method"] = case verb
+      when :get then "GET"
+      end
+      headers[":path"]   = uri.path
+      @stream.headers(headers, end_stream: true)
+
+      response 
     end
-  
+ 
+    private
+ 
     def response
 
       until @response.stream.state == :closed
@@ -30,8 +40,6 @@ module Jaguar::HTTP2
 
       @response   
     end
-  
-    private
   
     def on_frame(bytes)
       @sock.print bytes
@@ -52,7 +60,7 @@ module Jaguar::HTTP2
       attr_reader :headers, :body, :stream
     
       def initialize(stream)
-        @body = []
+        @body = String.new
         @stream = stream
         @stream.on(:close, &method(:on_close))
         @stream.on(:half_close, &method(:on_half_close))

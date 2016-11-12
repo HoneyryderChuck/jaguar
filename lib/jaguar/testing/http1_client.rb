@@ -2,56 +2,29 @@ module Jaguar::HTTP1
   class Client
   
     attr_reader :response
-    def initialize(sock)
-      @sock = sock
-      @parser = Parser.new
+    def initialize(conn)
+      @conn = conn 
     end
 
     def close
-      @sock.close
-      @parser.reset
+      #@conn.close
     end 
  
-    def write(headers)
-      @sock.write "#{headers.delete(":method")} #{headers.delete(":path")} HTTP/1.1#{CRLF}"
+    def request(verb, path, headers: {})
+      request = case verb 
+      when :get then Net::HTTP::Get.new(URI(path))
+      end
       headers.each do |k, v|
-        @sock.write "#{k.capitalize}: #{v}#{CRLF}"
+        request[k.capitalize] = v
       end
-      @sock.write(CRLF * 2)
+      res = @conn.start do |http|
+        response = http.request(request)
+        Response.new(status: response.code.to_i,
+                     headers: response.to_hash,
+                     body: response.body)
+      end
+      res
     end
   
-  
-    def response
-      res = String.new
-      # read headers
-      while data = read(BUFFER_SIZE)
-        break if data == :eof || @parser.headers?
-        @parser << data
-      end
-
-      body = [@parser.chunk].compact
-      while !@parser.finished?
-        data = read(BUFFER_SIZE)
-        break if data == :eof
-        @parser << data
-        body << @parser.chunk
-      end
-      Response.new(status: @parser.status_code,
-                   headers: @parser.headers,
-                   body: body)
-      
-    end
-
-    def read(bufsize)
-      loop do
-        data = @sock.read_nonblock(bufsize, exception: false)
-        case data
-        when nil then return :eof
-        when :wait_readable
-          @sock.wait_readable
-        else return data
-        end
-      end
-    end
   end
 end

@@ -11,12 +11,10 @@ class Jaguar::HTTP2::HTTPServerTest < ContainerTest
     server.run(&method(:get_app))
 
     client = http_client
-    get_request(client)
-
-    response = client.response
+    response = get_request(client)
     assert response.status == 200, "response is unexpected"
-    assert response.headers[":content-type"] == "5", "response is unexpected"
-    assert response.body.join == "Right", "response is unexpected"
+    assert response.headers[":content-length"] == "5", "response is unexpected"
+    assert response.body == "Right", "response is unexpected"
   ensure
     client.close if client 
     server.stop if server
@@ -39,19 +37,18 @@ class Jaguar::HTTP2::HTTPServerTest < ContainerTest
   def get_app(req, rep)
     if req.url == "/"
       rep.body = %w(Right)
-      rep.headers[":content-type"] = rep.body.map(&:bytesize).reduce(:+)
+      rep.headers[":content-length"] = rep.body.map(&:bytesize).reduce(:+)
     else
       rep.status = 400
-      rep.headers["content-type"] = rep.body.map(&:bytesize).reduce(:+)
+      rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
       rep.body = %w(Wrong)
     end
   end
 
 
   def get_request(client)
-    headers = { ":scheme" => "http", ":method" => "GET", ":path" => "/",
-                "accept" => "*/*"}
-    client.write headers
+    headers = { "accept" => "*/*"}
+    client.request(:get, "#{server_uri}/", headers: headers)
   end
 end
 
