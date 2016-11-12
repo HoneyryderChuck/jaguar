@@ -1,6 +1,7 @@
 require "jaguar/version"
 
 require "io/wait"
+require "openssl"
 
 require "celluloid/current"
 require "celluloid/io"
