@@ -14,10 +14,12 @@ class HTTP2PlainHTTPServer < ContainerTest
     client = http_client(sock)
     get_request(client)
 
+    client.read(1024)
+
     response = client.response
-    assert response.status == 200, "response is unexpected"
+    assert response.headers[":status"] == "200", "response is unexpected"
     assert response.headers[":content-type"] == "5", "response is unexpected"
-    assert response.body.join == "Right", "response is unexpected"
+    assert response.body == "Right", "response is unexpected"
   ensure
     sock.close if sock 
     server.stop if server
@@ -28,7 +30,7 @@ class HTTP2PlainHTTPServer < ContainerTest
   private
 
   def http_client(sock)
-    Jaguar::HTTP2::Client.new(sock)
+    HTTP2Client.new(sock)
   end
 
   def get_app(req, rep)
@@ -47,6 +49,10 @@ class HTTP2PlainHTTPServer < ContainerTest
     headers = { ":scheme" => "http", ":method" => "GET", ":path" => "/",
                 "accept" => "*/*"}
     client.write headers
+  end
+
+  def get_response_success
+    "HTTP/1.1 200 OK\r\nContent-Type: 5\r\nRight\r\n\r\n"
   end
 end
 
