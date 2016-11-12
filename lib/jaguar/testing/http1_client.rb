@@ -6,7 +6,12 @@ module Jaguar::HTTP1
       @sock = sock
       @parser = Parser.new
     end
-  
+
+    def close
+      @sock.close
+      @parser.reset
+    end 
+ 
     def write(headers)
       @sock.write "#{headers.delete(":method")} #{headers.delete(":path")} HTTP/1.1#{CRLF}"
       headers.each do |k, v|

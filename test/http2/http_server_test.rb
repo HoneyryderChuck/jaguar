@@ -1,6 +1,6 @@
 require_relative "../test_container"
 
-class HTTP2PlainHTTPServer < ContainerTest
+class Jaguar::HTTP2::HTTPServerTest < ContainerTest
   def setup
     Celluloid.init
     @app = Jaguar::Container.new("http://127.0.0.1:8989")
@@ -10,8 +10,7 @@ class HTTP2PlainHTTPServer < ContainerTest
     server = @app.send(:build_server)
     server.run(&method(:get_app))
 
-    sock = TCPSocket.new("127.0.0.1", 8989)
-    client = http_client(sock)
+    client = http_client
     get_request(client)
 
     response = client.response
@@ -19,7 +18,7 @@ class HTTP2PlainHTTPServer < ContainerTest
     assert response.headers[":content-type"] == "5", "response is unexpected"
     assert response.body.join == "Right", "response is unexpected"
   ensure
-    sock.close if sock 
+    client.close if client 
     server.stop if server
   end
 
@@ -27,7 +26,13 @@ class HTTP2PlainHTTPServer < ContainerTest
 
   private
 
-  def http_client(sock)
+  def server_uri
+    "http://127.0.0.1:8989"
+  end
+
+  def http_client
+    uri = URI(server_uri)
+    sock = TCPSocket.new(uri.host, uri.port)
     Jaguar::HTTP2::Client.new(sock)
   end
 

@@ -12,7 +12,11 @@ module Jaguar::HTTP2
       @conn.on(:promise, &method(:on_promise))
       @conn.on(:altsvc, &method(:on_altsvc))
     end
-  
+ 
+    def close
+      @sock.close
+    end
+ 
     def write(h)
       @stream.headers(h, end_stream: true)
     end
