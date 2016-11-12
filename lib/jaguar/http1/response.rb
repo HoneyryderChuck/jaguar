@@ -1,29 +1,30 @@
 module Jaguar::HTTP1
   class Response
-    CRLF = "\r\n"
 
     INITIALBODY=[]
 
     attr_accessor :status, :headers, :body
 
-    def initialize
+    def initialize(status: 200, headers: Headers.new, body: [])
       @version = "HTTP/1.1"
-      @status = 200
-      @reason = "OK"
-      @headers = {} 
-      @body   = INITIALBODY 
+      @status = status
+      @reason = "OK" # make this dynamic 
+      @headers = headers
+      @body   = body 
     end
 
+    
     def flush(sock)
+      sock = sock
       return if @done
-      sock << "#{@version} #{@status} #{@reason}#{CRLF}"
+      sock.write "#{@version} #{@status} #{@reason}#{CRLF}"
       @headers.each do |k, v|
-        sock << "#{k}: #{v}#{CRLF}"
+        sock.write "#{k}: #{v}#{CRLF}"
       end
+      sock.write CRLF
       @body.each do |chunk|
-        sock << chunk
+        sock.write chunk
       end
-      sock << "#{CRLF * 2}"
     end
 
   end

@@ -9,12 +9,15 @@ class HTTP1PlainHTTPServer < ContainerTest
   def test_get
     server = @app.send(:build_server)
     server.run(&method(:get_app))
+    sock = TCPSocket.new("127.0.0.1", 8989)
 
-    sock = client_sock
-    get_request(sock)
+    client = http_client(sock)
+    get_request(client)
 
-    response = sock.read(1024)
-    assert response == get_response_success, "response is unexpected"
+    response = client.response
+    assert response.status == 200, "response is unexpected"
+    assert response.headers["Content-Type"] == "5", "response is unexpected"
+    assert response.body.join == "Right", "response is unexpected"
   ensure
     sock.close if sock
     server.stop if server
@@ -24,8 +27,8 @@ class HTTP1PlainHTTPServer < ContainerTest
 
   private
 
-  def client_sock
-    TCPSocket.new("127.0.0.1", 8989)
+  def http_client(sock)
+    Jaguar::HTTP1::Client.new(sock)
   end
 
   def get_app(req, rep)
@@ -41,9 +44,9 @@ class HTTP1PlainHTTPServer < ContainerTest
 
 
   def get_request(client)
-    client.write "GET / HTTP/1.1\r\n\r\n"  
+    headers = { ":method" => "GET", ":path" => "/", "accept" => "*/*"}
+    client.write(headers)
   end
-
   def get_response_success
     "HTTP/1.1 200 OK\r\nContent-Type: 5\r\nRight\r\n\r\n"
   end

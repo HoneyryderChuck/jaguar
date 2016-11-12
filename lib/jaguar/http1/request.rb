@@ -1,6 +1,7 @@
 require "jaguar/http1/parser"
 
 module Jaguar::HTTP1
+  BUFFER_SIZE = 16_384
   #
   # the request MUST respond to:
   # * #verb (returns a String ("GET", "POST"...)
@@ -11,7 +12,6 @@ module Jaguar::HTTP1
   class Request
     extend Forwardable
 
-    BUFFER_SIZE = 16_384
 
     def_delegators :@parser, :verb, :http_version,
                              :url, :headers
