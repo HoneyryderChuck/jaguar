@@ -25,20 +25,9 @@ module Jaguar
     def handle_connection(sock, action)
       data = sock.readpartial(1024)
       if is_http1?(data)
-        req = HTTP1::Request.new(sock, initial: data)
-        res = HTTP1::Response.new
-        action.call(req, res)
-        res.flush(sock)
-        sock.close # TODO: keep-alive 
+        handle_http1(sock, action, initial: data)
       else
-        HTTP2::ServerProxy.new(sock, initial: data) do |stream|
-          HTTP2::Request.new(stream) do |req|
-            res = HTTP2::Response.new
-            action.call(req, res)
-            res.flush(stream)
-          end
-          # TODO: PUSH data here
-        end
+        handle_http2(sock, action, initial: data)
       end
     rescue Errno::ECONNRESET
       puts "socket closed by the client"
@@ -47,6 +36,25 @@ module Jaguar
 
     def is_http1?(data)
       data.match(/\A\w+ .* HTTP\/1\./)
+    end
+
+    def handle_http1(sock, action, initial: nil)
+      req = HTTP1::Request.new(sock, initial: initial)
+      res = HTTP1::Response.new
+      action.call(req, res)
+      res.flush(sock)
+      sock.close # TODO: keep-alive 
+    end
+
+    def handle_http2(sock, action, initial: nil)
+      HTTP2::ServerProxy.new(sock, initial: initial) do |stream|
+        HTTP2::Request.new(stream) do |req|
+          res = HTTP2::Response.new
+          action.call(req, res)
+          res.flush(stream)
+        end
+        # TODO: PUSH data here
+      end
     end
 
 #    def handle_connection(sock, action)
