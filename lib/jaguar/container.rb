@@ -52,7 +52,7 @@ module Jaguar
 
         server = TCPServer.new(@uri.host, @uri.port)
         OpenSSL::SSL::SSLServer.new(server, ctx)
-      when "unix"
+      when "unix" # TODO: support for unix socket over ssl????
         UNIXServer.new(@uri.host)
       else
         raise "unsupported scheme type for uri (#{@uri.to_s})"
