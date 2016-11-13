@@ -5,6 +5,7 @@ module Jaguar
     def initialize(uri, **options)
       @uri = URI.parse(uri)
       @options = options
+      @debug_output = @options[:debug_output] ? $stderr : nil
       @__r__, @__w__ = IO.pipe
     end
 
@@ -32,6 +33,9 @@ module Jaguar
       when "http"
         TCPServer.new(@uri.host, @uri.port)
       when "https"
+        raise "must pass ssl certificate" unless @options[:ssl_cert]
+        raise "must pass ssl key" unless @options[:ssl_key]
+ 
         ctx = OpenSSL::SSL::SSLContext.new
         ctx.cert = OpenSSL::X509::Certificate.new(@options[:ssl_cert])
         ctx.key  = OpenSSL::PKey::RSA.new(@options[:ssl_key])
@@ -57,10 +61,12 @@ module Jaguar
       else
         raise "unsupported scheme type for uri (#{@uri.to_s})"
       end
+      sock_server.listen(1024)
       Server.new(sock_server, @options)
     end
 
     def handle_signal(signal)
+      LOG { "received signal: #{signal}" }
       case signal
       when "INT", "TERM"
         raise Interrupt
@@ -78,6 +84,11 @@ module Jaguar
           STDERR.puts "#{signal}: signal not supported"
         end
       end
+    end
+
+    def LOG(&msg)
+      return unless @debug_output
+      @debug_output << msg.call + "\n"
     end
   end
 end

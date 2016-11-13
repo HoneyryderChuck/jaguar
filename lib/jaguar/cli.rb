@@ -1,3 +1,4 @@
+require "jaguar"
 module Jaguar
   class CLI
     DEFAULTOPTIONS={
@@ -6,7 +7,8 @@ module Jaguar
     }
 
     def initialize(argv = ARGV)
-      @options = DEFAULT_OPTIONS.merge(setup_options(argv))
+      @options = DEFAULTOPTIONS
+      setup_options(argv)
       @action = begin
         blk = File.read(argv.last)
         action = eval "->(req, rep) {\n" + blk + "\n}"
@@ -27,9 +29,19 @@ module Jaguar
              "uri to bind to (http://127.0.0.1, unix://0.0.0.0, https://cookiemonster.com:8080)" do |uri|
           @options[:uri] = uri
         end
+
+        o.on "--ssl-cert PATH",
+             "location in the file system of the ssl certificate to use" do |path|
+          @options[:ssl_cert] = File.read(path)
+        end
+
+        o.on "--ssl-key PATH",
+             "location in the file system of the ssl key to use" do |path|
+          @options[:ssl_key] = File.read(path)
+        end
     
         o.on "--debug", "activate server debugging mode" do
-          @options[:log_level] = Logger::DEBUG
+          @options[:debug_output] = true 
         end
         
     
