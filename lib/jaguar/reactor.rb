@@ -47,7 +47,7 @@ module Jaguar
     end
 
     def handle_http2(sock, action, initial: nil)
-      HTTP2::ServerProxy.new(sock, initial: initial) do |stream|
+      HTTP2::Handler.new(sock, initial: initial) do |stream|
         HTTP2::Request.new(stream) do |req|
           res = HTTP2::Response.new
           action.call(req, res)

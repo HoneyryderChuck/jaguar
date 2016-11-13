@@ -18,6 +18,6 @@ require "jaguar/headers"
 require "jaguar/http1/request"
 require "jaguar/http1/response"
 
-require "jaguar/http2/server_proxy"
+require "jaguar/http2/handler"
 require "jaguar/http2/request"
 require "jaguar/http2/response"

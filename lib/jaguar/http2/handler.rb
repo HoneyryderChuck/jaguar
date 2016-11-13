@@ -1,5 +1,5 @@
 module Jaguar::HTTP2
-  class ServerProxy
+  class Handler 
     def initialize(transport, initial: nil, &action)
       @transport = transport
       @server = ::HTTP2::Server.new
