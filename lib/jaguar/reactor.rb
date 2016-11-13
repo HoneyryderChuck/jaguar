@@ -39,11 +39,11 @@ module Jaguar
     end
 
     def handle_http1(sock, action, initial: nil)
-      req = HTTP1::Request.new(sock, initial: initial)
-      res = HTTP1::Response.new
-      action.call(req, res)
-      res.flush(sock)
-      sock.close # TODO: keep-alive 
+      HTTP1::Handler.new(sock, initial: initial) do |req, res|
+        action.call(req, res)
+        res.flush(sock)
+        sock.close # TODO: keep-alive
+      end
     end
 
     def handle_http2(sock, action, initial: nil)
@@ -56,13 +56,6 @@ module Jaguar
         # TODO: PUSH data here
       end
     end
-
-#    def handle_connection(sock, action)
-#      req = HTTP1::Request.new(sock)
-#      res = action.call(req)
-#      HTTP1::Response.new(res).flush(sock)
-#      sock.close # TODO: keep-alive 
-#    end
   end
 end
 

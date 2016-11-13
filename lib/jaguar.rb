@@ -15,6 +15,7 @@ require "jaguar/server"
 
 
 require "jaguar/headers"
+require "jaguar/http1/handler"
 require "jaguar/http1/request"
 require "jaguar/http1/response"
 

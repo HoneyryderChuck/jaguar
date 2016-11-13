@@ -1,7 +1,6 @@
 require "jaguar/http1/parser"
 
 module Jaguar::HTTP1
-  BUFFER_SIZE = 16_384
   #
   # the request MUST respond to:
   # * #verb (returns a String ("GET", "POST"...)
@@ -17,49 +16,11 @@ module Jaguar::HTTP1
                              :url, :headers
     alias_method :version, :http_version
 
-    def initialize(sock, initial: nil)
-      @sock = sock
-      @parser = Parser.new
-      @parser << initial if initial
-      read_headers!
-    end
+    attr_reader :body
 
-    def body
-      Enumerator.new do |y|
-        while !((read(BUFFER_SIZE) == :eof) || @parser.finished?)
-          chunk = @parser.chunk
-          y << chunk
-        end
-        @parser.reset
-      end
-    end
-
-    private
-
-
-    def read_headers!
-      loop do
-        if read(BUFFER_SIZE) == :eof
-          raise "couldn't read headers" unless @parser.headers?
-          break
-        elsif @parser.headers?
-          break
-        end
-      end
-    end
-
-    def read(bufsize)
-      return if @parser.finished?
-
-      value = @sock.readpartial(bufsize)
-      case value
-      when String
-        @parser << value
-      when :eof
-        :eof
-      end
-    rescue IOError, SocketError, SystemCallError => ex
-      raise "error reading from socket: #{ex}", ex.backtrace
+    def initialize(parser, body)
+      @parser = parser
+      @body = body
     end
   end
 end
