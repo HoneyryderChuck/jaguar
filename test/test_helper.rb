@@ -9,6 +9,8 @@ require "celluloid/probe"
 $CELLULOID_MONITORING = false
 Celluloid.shutdown_timeout = 1
 
+Dir[File.join(".", "test", "support", "**", "*.rb")].each { |f| require f }
+
 
 
 
