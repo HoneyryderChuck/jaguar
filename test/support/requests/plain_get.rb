@@ -5,10 +5,10 @@ module Requests
       server.run do |req, rep|
         if req.url == "/"
           rep.body = %w(Right)
-          rep.headers["content-Length"] = rep.body.map(&:bytesize).reduce(:+)
+          rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
         else
           rep.status = 400
-          rep.headers["content-Length"] = rep.body.map(&:bytesize).reduce(:+)
+          rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
           rep.body = %w(Wrong)
         end
       end 
