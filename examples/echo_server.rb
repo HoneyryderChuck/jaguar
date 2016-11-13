@@ -1,7 +1,5 @@
 require 'jaguar'
 
-Response = Struct.new(:status, :headers, :body)
-
 APP = ->(req, res) do
   body = "echo!!!!!!"
   headers = {"content-type" => "text/plain", "content-length" => body.bytesize.to_s}
@@ -11,8 +9,10 @@ APP = ->(req, res) do
   res.body = [body]
 end
 
-uri = "http://localhost:9292"
-container = Jaguar::Container.new(uri)
+uri = "https://localhost:9292"
+cert = File.read("test/support/ssl/server.crt")
+key  = File.read("test/support/ssl/server.key")
+container = Jaguar::Container.new(uri, ssl_cert: cert, ssl_key: key)
 puts "server is on..."
 container.run(&APP)
 
