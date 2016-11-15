@@ -2,6 +2,10 @@ require "jaguar/version"
 
 require "io/wait"
 require "openssl"
+require "webrick/httpstatus"
+# this might be temporarily here. let's see how 
+# https://bugs.ruby-lang.org/issues/12935 turns out
+
 
 require "celluloid/current"
 require "celluloid/io"

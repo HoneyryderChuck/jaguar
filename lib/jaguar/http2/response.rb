@@ -18,5 +18,10 @@ module Jaguar::HTTP2
       end
     end
 
+    private
+
+    def reason
+      WEBrick::HTTPStatus::StatusMessage[@status]
+    end
   end
 end

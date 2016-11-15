@@ -1,3 +1,4 @@
+
 module Jaguar::HTTP1
   CRLF = "\r\n"
   class Response
@@ -9,7 +10,6 @@ module Jaguar::HTTP1
     def initialize(status: 200, headers: Headers.new, body: [])
       @version = "HTTP/1.1"
       @status = status
-      @reason = "OK" # make this dynamic 
       @headers = headers
       @body   = body 
     end
@@ -18,7 +18,7 @@ module Jaguar::HTTP1
     def flush(sock)
       sock = sock
       return if @done
-      sock.write "#{@version} #{@status} #{@reason}#{CRLF}"
+      sock.write "#{@version} #{@status} #{reason}#{CRLF}"
       @headers.each do |k, v|
         sock.write "#{k}: #{v}#{CRLF}"
       end
@@ -28,5 +28,11 @@ module Jaguar::HTTP1
       end
     end
 
+
+    private
+
+    def reason
+      WEBrick::HTTPStatus::StatusMessage[@status]
+    end
   end
 end
