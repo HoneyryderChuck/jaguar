@@ -1,7 +1,7 @@
 require_relative "http_server_test"
 require "tempfile"
 
-class Jaguar::HTTP1::UnixServerTest < Jaguar::HTTP1::HTTPServerTest
+class Jaguar::HTTP1::UnixServerTest < ContainerTest 
   private
   def setup
     Celluloid.init

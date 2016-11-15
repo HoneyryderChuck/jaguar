@@ -32,8 +32,7 @@ module Jaguar::HTTP2
     private
  
     def response
-
-      until @response.stream.state == :closed
+      until [:closed, :half_closed_remote].include?(@response.stream.state)
         data = @sock.readpartial(65_535)
         @conn << data
       end
@@ -47,13 +46,19 @@ module Jaguar::HTTP2
     end
   
     def on_frame_sent(frame)
-     # puts "frame was sent!"
+      puts "client: frame was sent!"
+      puts frame.inspect 
     end
     def on_frame_received(frame)
-     # puts "frame was received"
+      puts "client: frame was received"
+      puts frame.inspect 
     end
     def on_promise(promise) ; ; end
     def on_altsvc(f) ; ; end
+
+    def on_stream(stream)
+      @response = Response.new(stream)
+    end
   
   
     class Response

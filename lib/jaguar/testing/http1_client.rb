@@ -1,13 +1,14 @@
 module Jaguar::HTTP1
   class Client
   
-    attr_reader :response
+    attr_reader :response, :conn
     def initialize(conn)
-      @conn = conn 
+      @conn = conn
+      @conn.start
     end
 
     def close
-      #@conn.close
+      @conn.send :do_finish
     end 
  
     def request(verb, path, headers: {})
@@ -15,16 +16,13 @@ module Jaguar::HTTP1
       when :get then Net::HTTP::Get.new(URI(path))
       end
       headers.each do |k, v|
-        request[k.capitalize] = v
+        conv = /[A-Z]/.match(k[0]) ? k : k.capitalize
+        request[conv] = v
       end
-      res = @conn.start do |http|
-        response = http.request(request)
-        Response.new(status: response.code.to_i,
-                     headers: response.to_hash,
-                     body: response.body)
-      end
-      res
+      response = @conn.request(request)
+      Response.new(status: response.code.to_i,
+                   headers: response.to_hash,
+                   body: response.body)
     end
-  
   end
 end

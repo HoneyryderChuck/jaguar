@@ -1,5 +1,6 @@
 require "jaguar/version"
 
+require "base64"
 require "io/wait"
 require "openssl"
 require "webrick/httpstatus"

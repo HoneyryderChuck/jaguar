@@ -9,6 +9,19 @@ module Jaguar::HTTP1
       read_headers!
       request = Request.new(@parser, body)
       response = Response.new
+      case request.headers["Upgrade"]
+      when "h2c"
+        if request.headers["HTTP2-Settings"]
+          response.status = 101
+          response.headers["Connection"] = "Upgrade" 
+          response.headers["Upgrade"] = "h2c"
+          response.flush(@transport)
+          throw(:upgrade, ["h2c", request]) 
+        end
+      when nil # ignore, no upgrades
+      else
+        # TODO: what to do if upgrade is not supported? 
+      end
       action.call(request, response) 
     end
 

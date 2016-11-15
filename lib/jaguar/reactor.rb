@@ -25,12 +25,16 @@ module Jaguar
     def handle_connection(sock, action)
       data = sock.readpartial(1024)
       if is_http1?(data)
-        handle_http1(sock, action, initial: data)
+        code, request = catch(:upgrade) { handle_http1(sock, action, initial: data) }
+        case code
+        when "h2c"
+          handle_http2(sock, action, upgrade: request)
+        end
       else
         handle_http2(sock, action, initial: data)
       end
     rescue Errno::ECONNRESET, 
-           OpenSSL::SSL::Error => e
+           OpenSSL::SSL::SSLError => e
       LOG { e.message }
       LOG { e.backtrace }
       sock.close
@@ -49,8 +53,8 @@ module Jaguar
       end
     end
 
-    def handle_http2(sock, action, initial: nil)
-      HTTP2::Handler.new(sock, initial: initial) do |stream|
+    def handle_http2(sock, action, initial: nil, upgrade: nil)
+      HTTP2::Handler.new(sock, initial: initial, upgrade: upgrade) do |stream|
         HTTP2::Request.new(stream) do |req|
           res = HTTP2::Response.new
           action.call(req, res)

@@ -1,6 +1,6 @@
 require_relative "http_server_test"
 
-class Jaguar::HTTP1::SSLServerTest < Jaguar::HTTP1::HTTPServerTest
+class Jaguar::HTTP1::SSLServerTest < ContainerTest 
   include Requests::PlainGet
   private
 
