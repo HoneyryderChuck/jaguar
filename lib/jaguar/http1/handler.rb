@@ -11,7 +11,7 @@ module Jaguar::HTTP1
       response = Response.new
       case request.headers["Upgrade"]
       when "h2c"
-        if request.headers["HTTP2-Settings"]
+        if request.headers["http2-settings"]
           response.status = 101
           response.headers["Connection"] = "Upgrade" 
           response.headers["Upgrade"] = "h2c"

@@ -36,14 +36,14 @@ module Jaguar::HTTP2
     end
 
     def upgrade!(http1_request)
-      headers = http1_request.headers
-      settings = headers.delete("HTTP2-Settings")
+      headers = http1_request.headers.to_hash
+      settings = headers.delete("http2-settings")
       request = {
         ':scheme'    => 'http',
         ':method'    => http1_request.verb,
-        ':authority' => headers.delete('Host'),
+        ':authority' => headers.delete('host'),
         ':path'      => http1_request.url,
-      }.merge(Headers.new(headers.to_hash))
+      }.merge(Headers.new(headers))
       # TODO: review that to_a, what if the request is streaming?
       @server.upgrade(settings ,request, Array(http1_request.body))
       

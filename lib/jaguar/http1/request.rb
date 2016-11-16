@@ -13,7 +13,7 @@ module Jaguar::HTTP1
 
 
     def_delegators :@parser, :verb, :http_version,
-                             :url, :headers
+                             :url
     alias_method :version, :http_version
 
     attr_reader :body
@@ -21,6 +21,11 @@ module Jaguar::HTTP1
     def initialize(parser, body)
       @parser = parser
       @body = body
+    end
+
+
+    def headers
+      @headers ||= Headers.new(@parser.headers)
     end
   end
 end

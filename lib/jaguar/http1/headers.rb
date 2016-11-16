@@ -1,15 +1,19 @@
 module Jaguar::HTTP1
   class Headers
-    def initialize(h={})
-      @headers = h
+    def initialize(h=nil)
+      @headers = {}
+      return unless h
+      h.each do |k, v|
+        @headers[k.downcase] = v
+      end
     end
   
-    def [](v)
-      @headers[v]
+    def [](key)
+      @headers[key.downcase]
     end
   
     def []=(k, v)
-      @headers[k] = String(v)
+      @headers[k.downcase] = String(v)
     end
   
     def each(&act)
