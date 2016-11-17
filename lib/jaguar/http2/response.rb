@@ -2,20 +2,45 @@ module Jaguar::HTTP2
   class Response
     attr_accessor :status, :headers, :body
 
-    INITIALBODY=[]
 
-    def initialize
-      @status = 200
-      @headers = Headers.new
-      @body = INITIALBODY
+    def initialize(status: 200, headers: Headers.new, body: nil)
+      @status = status
+      @headers = headers 
+      @body = nil 
+    end
+
+    def push(path, promise)
+      (@promises ||= []) << [path, promise]
     end
 
     def flush(stream)
       stream.headers({":status" => @status.to_s}.merge(@headers), end_stream: false)
+      if @promises
+        push_streams = []
+        @promises.map do |path, promise|
+          headers = promise.headers
+          head = {
+            ":method"    => "GET",
+            ":authority"  => @headers[":authority"] || "", 
+            ":scheme"     => @headers[":scheme"] || "https", 
+            ":path"       => path }
+          stream.promise(head) do |push_stream|
+            push_stream.headers(headers.merge(":status" => String(promise.status)))
+            push_streams << push_stream
+          end
+        end
+      end
       @body.each do |chunk|
         stream.data(chunk, end_stream: false)
-        stream.data("")
-      end
+      end if @body
+      stream.data("")
+      @promises.each_with_index.map do |(_, promise), i|
+        push_stream = push_streams[i]
+        promise.body.each do |chunk|
+          push_stream.data(chunk, end_stream: false)
+        end if promise.body
+        push_stream.data("")
+      end if @promises
     end
 
     private

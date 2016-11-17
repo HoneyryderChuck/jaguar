@@ -3,6 +3,7 @@ require "tempfile"
 
 class Jaguar::HTTP2::UnixServerTest < ContainerTest 
   include Requests::PlainGet
+  include Requests::PushGet
 
   private
   def setup

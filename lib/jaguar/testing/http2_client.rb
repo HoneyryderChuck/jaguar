@@ -28,18 +28,27 @@ module Jaguar::HTTP2
 
       response 
     end
+
+    
  
-    private
  
     def response
-      until [:closed, :half_closed_remote].include?(@response.stream.state)
-        data = @sock.readpartial(65_535)
-        @conn << data
-      end
-
+      read_data until @response and [:closed, :half_closed_remote].include?(@response.stream.state)
       @response   
     end
-  
+ 
+    def promise
+      read_data until @promise and [:closed, :half_closed_remote].include?(@response.stream.state)
+      @promise
+    end
+ 
+    private
+
+    def read_data
+      data = @sock.readpartial(65_535)
+      @conn << data
+    end
+
     def on_frame(bytes)
       @sock.print bytes
       @sock.flush
@@ -53,13 +62,36 @@ module Jaguar::HTTP2
       puts "client: frame was received"
       puts frame.inspect 
     end
-    def on_promise(promise) ; ; end
+    def on_promise(promise)
+      @promise = Promise.new(promise)
+    end
+
     def on_altsvc(f) ; ; end
 
     def on_stream(stream)
       @response = Response.new(stream)
     end
-  
+    class Promise
+      attr_reader :headers, :body, :stream
+      def initialize(stream)
+        @stream = stream
+        @body = String.new
+        @stream.on(:headers, &method(:on_headers))
+        @stream.on(:data, &method(:on_data))
+      end
+
+      def status
+        @headers[":status"].to_i
+      end
+
+      private
+      def on_headers(headers)
+        @headers = Hash[headers]
+      end
+      def on_data(data)
+        @body << data
+      end
+    end
   
     class Response
       attr_reader :headers, :body, :stream

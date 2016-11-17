@@ -3,6 +3,7 @@ require_relative "../test_container"
 class Jaguar::HTTP2::HTTPServerTest < ContainerTest
 
   include Requests::PlainGet
+  include Requests::PushGet
 
   private
 
