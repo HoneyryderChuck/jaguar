@@ -1,6 +1,7 @@
 require_relative "http_server_test"
 
-class Jaguar::HTTP2::SSLServerTest < Jaguar::HTTP2::HTTPServerTest
+class Jaguar::HTTP2::SSLServerTest < ContainerTest
+  include Requests::PlainGet 
   private
   def app
     @app ||= Jaguar::Container.new(server_uri, ssl_cert: File.read("test/support/ssl/server.crt"),

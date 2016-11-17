@@ -1,7 +1,7 @@
 require_relative "http_server_test"
 require "tempfile"
 
-class Jaguar::HTTP2::UnixServerTest < Jaguar::HTTP2::HTTPServerTest
+class Jaguar::HTTP2::UnixServerTest < ContainerTest 
   include Requests::PlainGet
 
   private
