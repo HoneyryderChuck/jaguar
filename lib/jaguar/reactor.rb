@@ -54,14 +54,9 @@ module Jaguar
     end
 
     def handle_http2(sock, action, initial: nil, upgrade: nil)
-      HTTP2::Handler.new(sock, initial: initial, upgrade: upgrade) do |stream|
-        HTTP2::Request.new(stream) do |req|
-          res = HTTP2::Response.new
-          action.call(req, res)
-          res.flush(stream)
-          LOG { "HTTP2 #{req.url} -> #{res.status}" }
-        end
-        # TODO: PUSH data here
+      HTTP2::Handler.new(sock, initial: initial, upgrade: upgrade) do |req, res|
+        action.call(req, res)
+        LOG { "HTTP2 #{req.url} -> #{res.status}" }
       end
     end
 

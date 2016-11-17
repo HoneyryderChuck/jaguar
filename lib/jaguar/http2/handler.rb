@@ -3,10 +3,11 @@ module Jaguar::HTTP2
     def initialize(transport, initial: nil, upgrade: nil, &action)
       @transport = transport
       @server = ::HTTP2::Server.new
+      @action = action
       @server.on(:frame, &method(:on_frame))
       @server.on(:frame_sent, &method(:on_frame_sent))
       @server.on(:frame_received, &method(:on_frame_received))
-      @server.on(:stream, &action)
+      @server.on(:stream, &method(:on_stream))
       @server << initial if initial
       if upgrade
         upgrade!(upgrade)
@@ -26,13 +27,22 @@ module Jaguar::HTTP2
     end
 
     def on_frame_sent(frame)
-      puts "server: frame was sent!"
-      puts frame.inspect 
+      # puts "server: frame was sent!"
+      # puts frame.inspect 
     end
 
     def on_frame_received(frame)
-      puts "server: frame was received"
-      puts frame.inspect 
+      #puts "server: frame was received"
+      #puts frame.inspect 
+    end
+
+    def on_stream(stream)
+      Request.new(stream) do |req|
+        res = Response.new
+        res.headers[":authority"] = req.headers[":authority"]
+        @action.call(req, res)
+        res.flush(stream)
+      end
     end
 
     def upgrade!(http1_request)
