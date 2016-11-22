@@ -39,8 +39,9 @@ module Jaguar::HTTP2
     def on_stream(stream)
       Request.new(stream) do |req|
         res = Response.new
-        res.headers[":authority"] = req.headers[":authority"]
+        res.headers["referer"] = req.headers[":authority"]
         @action.call(req, res)
+        res.headers["server"] = "jaguar"
         res.flush(stream)
       end
     end
