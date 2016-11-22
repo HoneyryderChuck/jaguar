@@ -14,15 +14,16 @@ module Jaguar::HTTP2
     end
 
     def flush(stream)
-      stream.headers({":status" => @status.to_s}.merge(@headers), end_stream: false)
+      headers = @headers.to_hash
+      stream.headers({":status" => @status.to_s}.merge(headers), end_stream: false)
       if @promises
         push_streams = []
         @promises.map do |path, promise|
           headers = promise.headers
           head = {
             ":method"    => "GET",
-            ":authority"  => @headers[":authority"] || "", 
-            ":scheme"     => @headers[":scheme"] || "https", 
+            ":authority"  => headers["referer"] || "", 
+            ":scheme"     => headers[":scheme"] || "https", 
             ":path"       => path }
           stream.promise(head) do |push_stream|
             push_stream.headers(headers.merge(":status" => String(promise.status)))
