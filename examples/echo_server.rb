@@ -2,7 +2,6 @@ require 'jaguar'
 
 APP = ->(req, res) do
   body = "echo!!!!!!"
-  headers = {"content-type" => "text/plain", "content-length" => body.bytesize.to_s}
   res.status = 200
   res.headers["content-type"] = "text/plain"
   res.headers["content-length"] = body.bytesize.to_s 
