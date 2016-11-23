@@ -31,14 +31,17 @@ module Jaguar
     def build_server
       sock_server = case @uri.scheme
       when "http"
-        TCPServer.new(@uri.host, @uri.port)
+        server = TCPServer.new(@uri.host, @uri.port)
+        server.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
+        server.setsockopt(Socket::SOL_SOCKET,Socket::SO_REUSEADDR, true)
+        server
       when "https"
         raise "must pass ssl certificate" unless @options[:ssl_cert]
         raise "must pass ssl key" unless @options[:ssl_key]
  
         ctx = OpenSSL::SSL::SSLContext.new
-        ctx.cert = OpenSSL::X509::Certificate.new(@options[:ssl_cert])
-        ctx.key  = OpenSSL::PKey::RSA.new(@options[:ssl_key])
+        ctx.cert = OpenSSL::X509::Certificate.new(@options.delete(:ssl_cert))
+        ctx.key  = OpenSSL::PKey::RSA.new(@options.delete(:ssl_key))
 
         ctx.ssl_version = :TLSv1_2
         ctx.options = OpenSSL::SSL::SSLContext::DEFAULT_PARAMS[:options]
@@ -55,6 +58,8 @@ module Jaguar
         end
 
         server = TCPServer.new(@uri.host, @uri.port)
+        server.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
+        server.setsockopt(Socket::SOL_SOCKET,Socket::SO_REUSEADDR, true)
         OpenSSL::SSL::SSLServer.new(server, ctx)
       when "unix" # TODO: support for unix socket over ssl????
         UNIXServer.new(@uri.host)
