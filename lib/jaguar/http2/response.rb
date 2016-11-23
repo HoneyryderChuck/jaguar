@@ -19,14 +19,14 @@ module Jaguar::HTTP2
       if @promises
         push_streams = []
         @promises.map do |path, promise|
-          headers = promise.headers
+          promise_headers = promise.headers
           head = {
             ":method"    => "GET",
             ":authority"  => headers["referer"] || "", 
             ":scheme"     => headers[":scheme"] || "https", 
             ":path"       => path }
           stream.promise(head) do |push_stream|
-            push_stream.headers(headers.merge(":status" => String(promise.status)))
+            push_stream.headers(promise_headers.merge(":status" => String(promise.status)))
             push_streams << push_stream
           end
         end
