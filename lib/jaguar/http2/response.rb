@@ -26,7 +26,7 @@ module Jaguar::HTTP2
             ":scheme"     => headers[":scheme"] || "https", 
             ":path"       => path }
           stream.promise(head) do |push_stream|
-            push_stream.headers(promise_headers.merge(":status" => String(promise.status)))
+            push_stream.headers({":status" => String(promise.status)}.merge(promise_headers))
             push_streams << push_stream
           end
         end
