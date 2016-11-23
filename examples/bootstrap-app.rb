@@ -2,12 +2,14 @@ require "jaguar"
 require "pathname"
 
 ROOT = Pathname.new(File.dirname(__FILE__)).join("bootstrap-app")
+expander = ->(f) { f.file? ? f : f.children.flat_map(&expander) }
+FILES = ROOT.children.flat_map(&expander)
 
 Promise = Struct.new(:status, :headers, :body)
 
 APP = ->(req, res) do
   file = ROOT.join(req.url[1..-1]) # trailing "/"
-  if file.file? or not ROOT.children.include?(file)
+  if file.file? and FILES.include?(file)
     puts "serving #{req.url}..."
 
     ext = file.extname[1..-1] # trailing "."
