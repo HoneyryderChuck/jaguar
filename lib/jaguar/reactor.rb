@@ -33,7 +33,7 @@ module Jaguar
       else
         handle_http2(sock, action, initial: data)
       end
-    rescue Errno::ECONNRESET, 
+    rescue Errno::ECONNRESET, IOError, 
            OpenSSL::SSL::SSLError => e
       LOG { e.message }
       LOG { e.backtrace }
