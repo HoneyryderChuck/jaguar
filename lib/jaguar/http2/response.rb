@@ -3,10 +3,10 @@ module Jaguar::HTTP2
     attr_accessor :status, :headers, :body
 
 
-    def initialize(status: 200, headers: Headers.new, body: nil)
+    def initialize(status: 200, headers: Headers.new, body: [])
       @status = status
       @headers = headers 
-      @body = nil 
+      @body = []
     end
 
     def push(path, promise)
