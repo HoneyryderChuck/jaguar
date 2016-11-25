@@ -38,7 +38,7 @@ module Jaguar::HTTP2
     end
  
     def promise
-      read_data until @promise and [:closed, :half_closed_remote].include?(@response.stream.state)
+      read_data until @promise and [:closed, :half_closed_remote].include?(@promise.stream.state)
       @promise
     end
  
@@ -66,7 +66,10 @@ module Jaguar::HTTP2
       @promise = Promise.new(promise)
     end
 
-    def on_altsvc(f) ; ; end
+    def on_altsvc(frame)
+      LOG { "altsvc frame was received" }
+      LOG { frame.inspect }
+    end
 
     def on_stream(stream)
       @response = Response.new(stream)
@@ -92,11 +95,18 @@ module Jaguar::HTTP2
 
       private
       def on_headers(headers)
+        LOG { "received headers: #{headers}" }
         @headers = Hash[headers]
       end
 
       def on_data(data)
+        LOG { "received data: #{data}" }
         @body << data
+      end
+
+      def LOG(&msg)
+        return unless $JAGUAR_DEBUG 
+        $stderr << "client promise: " + msg.call + "\n"
       end
     end
   
@@ -108,9 +118,9 @@ module Jaguar::HTTP2
         @stream = stream
         @stream.on(:close, &method(:on_close))
         @stream.on(:half_close, &method(:on_half_close))
+        @stream.on(:altsvc, &method(:on_altsvc))
         @stream.on(:headers, &method(:on_headers))
         @stream.on(:data, &method(:on_data))
-        @stream.on(:altsvc, &method(:on_altsvc))
       end
    
       def body ; [@body] ; end 
