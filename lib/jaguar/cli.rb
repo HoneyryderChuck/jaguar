@@ -41,7 +41,7 @@ module Jaguar
         end
     
         o.on "--debug", "activate server debugging mode" do
-          @options[:debug_output] = true 
+          $JAGUAR_DEBUG = true 
         end
         
     

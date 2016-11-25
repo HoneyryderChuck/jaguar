@@ -9,28 +9,38 @@ module Jaguar::HTTP1
     def initialize(status: 200, headers: Headers.new, body: [])
       @status = status
       @headers = headers
-      @body   = nil 
+      @body   = Array(body) 
     end
 
     
     def flush(sock)
       sock = sock
       return if @done
-      sock.write "HTTP/1.1 #{@status} #{reason}#{CRLF}"
-      @headers.each do |k, v|
-        sock.write "#{k}: #{v}#{CRLF}"
+      write(sock, "HTTP/1.1 #{@status} #{reason}#{CRLF}")
+      @headers.each_capitalized do |k, v|
+        write(sock, "#{k}: #{v}#{CRLF}")
       end
-      sock.write CRLF
+      write(sock, CRLF)
       @body.each do |chunk|
-        sock.write chunk
+        write(sock, chunk)
       end if @body
     end
 
 
     private
 
+    def write(sock, payload)
+      LOG { payload }
+      sock.write(payload)
+    end
+
     def reason
       WEBrick::HTTPStatus::StatusMessage[@status]
+    end
+
+    def LOG(&msg)
+      return unless $JAGUAR_DEBUG
+      $stderr << "response: " + msg.call.inspect + "\n"
     end
   end
 end

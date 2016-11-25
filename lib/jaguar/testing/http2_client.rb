@@ -55,12 +55,12 @@ module Jaguar::HTTP2
     end
   
     def on_frame_sent(frame)
-      puts "client: frame was sent!"
-      puts frame.inspect 
+      LOG { "frame was sent!" }
+      LOG { frame.inspect }
     end
     def on_frame_received(frame)
-      puts "client: frame was received"
-      puts frame.inspect 
+      LOG { "frame was received" }
+      LOG { frame.inspect }
     end
     def on_promise(promise)
       @promise = Promise.new(promise)
@@ -71,6 +71,12 @@ module Jaguar::HTTP2
     def on_stream(stream)
       @response = Response.new(stream)
     end
+
+    def LOG(&msg)
+      return unless $JAGUAR_DEBUG 
+      $stderr << "client: " + msg.call + "\n"
+    end
+
     class Promise
       attr_reader :headers, :body, :stream
       def initialize(stream)
@@ -114,21 +120,25 @@ module Jaguar::HTTP2
       private
     
       def on_altsvc(f)
-       # puts "altsvc received!"
+        LOG { "altsvc received!" }
       end
       def on_close(*)
-       # puts "stream is closed!"
+        LOG { "stream is closed!" }
       end
       def on_half_close
-       # puts "stream is half closed"
+        LOG { "stream is half closed" }
       end
       def on_headers(h)
         @headers = Hash[*h.flatten]
       end
       def on_data(data)
         @body << data
+      end    
+      def LOG(&msg)
+        return unless $JAGUAR_DEBUG 
+        $stderr << "client response: " + msg.call + "\n"
       end
-    end
-  
-  end
+    end      
+             
+  end        
 end

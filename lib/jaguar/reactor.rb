@@ -13,6 +13,7 @@ module Jaguar
         async(:handle_connection, @server.accept, action)
       end
     rescue IOError
+      LOG { "error accepting socket" }
     end
 
 
@@ -36,7 +37,7 @@ module Jaguar
     rescue Errno::ECONNRESET, IOError, 
            OpenSSL::SSL::SSLError => e
       LOG { e.message }
-      LOG { e.backtrace }
+      LOG { e.backtrace.join("\n") }
       sock.close
     end
 
@@ -62,8 +63,8 @@ module Jaguar
 
 
     def LOG(&msg)
-      return unless @debug_output
-      @debug_output << msg.call + "\n"
+      return unless $JAGUAR_DEBUG 
+      $stderr << "reactor: " + msg.call + "\n"
     end
   end
 end

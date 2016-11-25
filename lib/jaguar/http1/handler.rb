@@ -64,5 +64,9 @@ module Jaguar::HTTP1
       raise "error reading from socket: #{ex}", ex.backtrace
     end
 
+    def LOG(&msg)
+      return unless $JAGUAR_DEBUG 
+      $stderr << "server: " + msg.call + "\n"
+    end
   end
 end

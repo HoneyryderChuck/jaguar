@@ -7,6 +7,7 @@ require "jaguar/testing/http1_client"
 
 require "celluloid/probe"
 $CELLULOID_MONITORING = false
+#$JAGUAR_DEBUG = true
 Celluloid.shutdown_timeout = 1
 
 Dir[File.join(".", "test", "support", "**", "*.rb")].each { |f| require f }

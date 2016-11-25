@@ -5,7 +5,6 @@ module Jaguar
     def initialize(uri, **options)
       @uri = URI.parse(uri)
       @options = options
-      @debug_output = @options[:debug_output] ? $stderr : nil
       @__r__, @__w__ = IO.pipe
     end
 
@@ -92,8 +91,8 @@ module Jaguar
     end
 
     def LOG(&msg)
-      return unless @debug_output
-      @debug_output << msg.call + "\n"
+      return unless $JAGUAR_DEBUG 
+      @stderr << msg.call + "\n"
     end
   end
 end

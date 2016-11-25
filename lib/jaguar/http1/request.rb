@@ -21,11 +21,29 @@ module Jaguar::HTTP1
     def initialize(parser, body)
       @parser = parser
       @body = body
+      LOG { to_s(debug: true) }
     end
 
 
     def headers
       @headers ||= Headers.new(@parser.headers)
+    def to_s(*args)
+      if args.first.respond_to?(:[]) && args.first[:debug]
+        "HTTP1 #{url} #{verb}\n" +
+        headers.to_hash.map { |k,v| "#{k}: #{v}" }.join("\n") +
+        "\n" +
+        body.to_a.join +
+        "\n"
+      else
+        super
+      end
+    end
+ 
+    private
+
+    def LOG(&msg)
+      return unless $JAGUAR_DEBUG
+      $stderr << "request: " + msg.call + "\n"
     end
   end
 end

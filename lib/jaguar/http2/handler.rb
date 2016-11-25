@@ -27,13 +27,13 @@ module Jaguar::HTTP2
     end
 
     def on_frame_sent(frame)
-      # puts "server: frame was sent!"
-      # puts frame.inspect 
+       LOG { "frame was sent!" }
+       LOG { frame.inspect } 
     end
 
     def on_frame_received(frame)
-      #puts "server: frame was received"
-      #puts frame.inspect 
+      LOG { "frame was received" }
+      LOG { frame.inspect }
     end
 
     def on_stream(stream)
@@ -55,9 +55,13 @@ module Jaguar::HTTP2
         ':authority' => headers.delete('host'),
         ':path'      => http1_request.url,
       }.merge(Headers.new(headers))
-      # TODO: review that to_a, what if the request is streaming?
-      @server.upgrade(settings ,request, Array(http1_request.body))
+      @server.upgrade(settings ,request, http1_request.body)
       
+    end
+
+    def LOG(&msg)
+      return unless $JAGUAR_DEBUG 
+      $stderr << "server: " + msg.call + "\n"
     end
   end
 end

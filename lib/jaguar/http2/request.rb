@@ -39,11 +39,11 @@ module Jaguar::HTTP2
     private
 
     def on_active
-      # puts "stream is active!"
+      LOG { "stream is active!" }
     end
 
     def on_close
-      # puts "stream is closed"
+      LOG { "stream is closed" }
     end
 
     def on_headers(h)
@@ -56,6 +56,11 @@ module Jaguar::HTTP2
    
     def on_half_close
       @action.call(self)
+    end
+
+    def LOG(&msg)
+      return unless $JAGUAR_DEBUG 
+      $stderr << "request: " + msg.call + "\n"
     end
   end
 end
