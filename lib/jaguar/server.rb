@@ -12,7 +12,7 @@ module Jaguar
 
 
     def stop
-      @reactor.shutdown if @reactor and @reactor.alive?
+      @reactor.terminate if @reactor and @reactor.alive?
     end
 
   end

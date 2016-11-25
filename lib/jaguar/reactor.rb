@@ -1,6 +1,7 @@
 module Jaguar
   class Reactor 
     include Celluloid::IO
+    finalizer :stop
 
     def initialize(proxy, **options)
       @options = options
