@@ -39,7 +39,7 @@ module Jaguar::HTTP1
 
     def LOG(&msg)
       return unless $JAGUAR_DEBUG
-      $stderr << "request: " + msg.call + "\n"
+      $stderr << "server request: " + msg.call + "\n"
     end
   end
 end
