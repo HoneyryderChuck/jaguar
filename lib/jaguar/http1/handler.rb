@@ -6,8 +6,8 @@ module Jaguar::HTTP1
       @transport = transport
       @parser = Parser.new
       @parser << initial if initial
-      read_headers!
-      request = Request.new(@parser, body)
+      headers = read_headers!
+      request = Request.new(@parser, body.to_a)
       response = Response.new
       case request.headers["Upgrade"]
       when "h2c"
@@ -34,7 +34,6 @@ module Jaguar::HTTP1
           chunk = @parser.chunk
           y << chunk
         end
-        @parser.reset
       end
     end
 
@@ -48,6 +47,7 @@ module Jaguar::HTTP1
           break
         end
       end
+      @parser.headers
     end
 
     def read(bufsize)

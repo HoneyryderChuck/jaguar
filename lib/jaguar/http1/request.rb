@@ -9,24 +9,20 @@ module Jaguar::HTTP1
   # * #body (returns an Enumerable)
   # 
   class Request
-    extend Forwardable
 
-
-    def_delegators :@parser, :verb, :http_version,
-                             :url
-    alias_method :version, :http_version
-
-    attr_reader :body
+    attr_reader :verb, :version, :headers, :body, :url
 
     def initialize(parser, body)
-      @parser = parser
+      @verb = parser.verb
+      @version = parser.http_version
+      @url = parser.url
+      @headers = Headers.new(parser.headers)
       @body = body
+      parser.reset
       LOG { to_s(debug: true) }
     end
 
 
-    def headers
-      @headers ||= Headers.new(@parser.headers)
     def to_s(*args)
       if args.first.respond_to?(:[]) && args.first[:debug]
         "HTTP1 #{url} #{verb}\n" +
