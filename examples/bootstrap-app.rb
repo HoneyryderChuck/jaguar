@@ -1,11 +1,11 @@
 require "jaguar"
 require "pathname"
 
-ROOT = Pathname.new(File.dirname(__FILE__)).join("bootstrap-app")
+ROOT = Pathname.new(File.expand_path(File.dirname(__FILE__))).join("bootstrap-app")
 expander = ->(f) { f.file? ? f : f.children.flat_map(&expander) }
 FILES = ROOT.children.flat_map(&expander)
 
-Promise = Struct.new(:status, :headers, :body)
+puts "serving from #{ROOT}"
 
 APP = ->(req, res) do
   file = ROOT.join(req.url[1..-1]) # trailing "/"
@@ -16,21 +16,29 @@ APP = ->(req, res) do
     body = file.read
     # promise
     if ext.end_with?("html")
-      bootbody = ROOT.join("css", "bootstrap.min.css").read
-      bootstrap_css = Promise.new(200, {"content-length" => bootbody.bytesize.to_s,
-                                        "content-type" => "text/css"}, [bootbody])
-      puts "pushing /css/bootstrap.min.css..."
-      res.push "/css/bootstrap.min.css", bootstrap_css
+      %w{
+/css/bootstrap.min.css
+/css/bootstrap-theme.min.css
+/css/main.css
+/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js
+/js/vendor/bootstrap.min.js
+/js/main.js
+      }.each do |path|
+        puts "pushing #{path} ..."
+        as = path.end_with?("css") ? "style" : "script"
+        res.headers.add_field("Link", "<#{path}>; rel=preload; as=#{as}")
+      end
     end
 
     res.headers["content-type"] = "text/#{ext}"
     res.headers["content-length"] = body.bytesize.to_s
     res.body = [body]
+    res.enable_push!([ROOT])
   else
     body = "Not Found!"
     res.status = 404
     res.headers["content-type"] = "text/plain"
-    res.headers["content-length"] = body.bytesize.to_s
+    res.headers["content-length"] = body.bytesize
     res.body = [body]
   end
 end

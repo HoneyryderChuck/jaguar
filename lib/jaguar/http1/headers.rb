@@ -29,6 +29,14 @@ module Jaguar::HTTP1
       end
     end
 
+    def each_value(k)
+      key = k.downcase
+      return enum_for(__method__, k) {@headers[key].size } unless block_given?
+      @headers[key].each do |v|
+        yield v
+      end if @headers[key]
+    end
+
     def each_capitalized
       return enum_for(__method__) {@headers.size } unless block_given?
       @headers.each do |k, v|

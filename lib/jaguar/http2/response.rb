@@ -9,8 +9,13 @@ module Jaguar::HTTP2
       @body = []
     end
 
-    def push(path, promise)
-      (@promises ||= []) << [path, promise]
+    def enable_push!(resource_dirs)
+      @promises = @headers.each_value("link").map do |link|
+        resource, *props = link.split("; ")
+        props = Hash[ props.map { |prop| prop.split("=") } ]
+        Promise.new(resource[/<(.+)>/,1], props, resource_dirs)
+      end
+      # TODO: order by priority
     end
 
     def flush(stream)
@@ -18,15 +23,17 @@ module Jaguar::HTTP2
       stream.headers({":status" => @status.to_s}.merge(headers), end_stream: false)
       if @promises
         push_streams = []
-        @promises.map do |path, promise|
+        @promises.map do |promise|
+          next if promise.props["rel"] == "nopush"
+ 
           promise_headers = promise.headers
           head = {
             ":method"    => "GET",
             ":authority"  => headers["referer"] || "", 
             ":scheme"     => headers[":scheme"] || "https", 
-            ":path"       => path }
+            ":path"       => promise.path }
           stream.promise(head) do |push_stream|
-            push_stream.headers({":status" => String(promise.status)}.merge(promise_headers))
+            push_stream.headers({":status" => "200"}.merge(promise_headers))
             push_streams << push_stream
           end
         end
@@ -35,7 +42,7 @@ module Jaguar::HTTP2
         stream.data(chunk, end_stream: false)
       end if @body
       stream.data("")
-      @promises.each_with_index.map do |(_, promise), i|
+      @promises.each_with_index do |promise, i|
         push_stream = push_streams[i]
         promise.body.each do |chunk|
           push_stream.data(chunk, end_stream: false)
