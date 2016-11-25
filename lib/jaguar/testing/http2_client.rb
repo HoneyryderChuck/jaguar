@@ -94,13 +94,14 @@ module Jaguar::HTTP2
       def on_headers(headers)
         @headers = Hash[headers]
       end
+
       def on_data(data)
         @body << data
       end
     end
   
     class Response
-      attr_reader :headers, :body, :stream
+      attr_reader :headers, :stream
     
       def initialize(stream)
         @body = String.new
@@ -111,7 +112,8 @@ module Jaguar::HTTP2
         @stream.on(:data, &method(:on_data))
         @stream.on(:altsvc, &method(:on_altsvc))
       end
-    
+   
+      def body ; [@body] ; end 
    
       def status
         @headers[":status"].to_i
