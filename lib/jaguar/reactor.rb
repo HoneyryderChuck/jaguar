@@ -30,7 +30,9 @@ module Jaguar
         code, request = catch(:upgrade) { handle_http1(sock, action, initial: data) }
         case code
         when "h2c"
-          handle_http2(sock, action, upgrade: request)
+          after(0.02) do
+            handle_http2(sock, action, upgrade: request)
+          end
         end
       else
         handle_http2(sock, action, initial: data)
