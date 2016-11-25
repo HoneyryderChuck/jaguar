@@ -19,7 +19,20 @@ module Jaguar::HTTP1
     def each(&act)
       @headers.each(&act)
     end
-  
+
+    def each_capitalized
+      return enum_for(__method__) {@headers.size } unless block_given?
+      @headers.each do |k,v|
+        yield capitalize(k), String(v)
+      end
+    end
+
     def to_hash ; @headers ; end
+
+    private
+
+    def capitalize(name)
+      name.to_s.split(/-/).map {|s| s.capitalize }.join('-')
+    end
   end
 end
