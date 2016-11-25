@@ -14,6 +14,7 @@ module Requests
 
       up = upgrade_client(client.conn.instance_variable_get(:@socket).io)
 
+      sleep 1
       response = up.response
 
       assert response.status == 200, "couldn't parse upgraded http2 status"

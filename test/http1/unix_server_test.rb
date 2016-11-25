@@ -1,10 +1,10 @@
-require_relative "http_server_test"
+require_relative "../test_container"
 require "tempfile"
 
 class Jaguar::HTTP1::UnixServerTest < ContainerTest 
   private
   def setup
-    Celluloid.init
+    super
     @sockpath = "jagtest.sock"
     @app = Jaguar::Container.new("unix://#{@sockpath}")
   end

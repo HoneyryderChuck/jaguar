@@ -28,7 +28,7 @@ module Requests
 
       assert response.status == 200, "response status code is unexpected"
       assert response.headers["content-length"].include?("5"), "response content length is unexpected"
-      assert response.body == "Right", "response body is unexpected"
+      assert response.body == %w(Right), "response body is unexpected"
 
       sleep 1
       promise = client.promise

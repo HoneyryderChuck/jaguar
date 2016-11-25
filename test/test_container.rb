@@ -3,12 +3,13 @@ require_relative "test_helper"
 class ContainerTest < Minitest::Test
   private
   def setup
-    Celluloid.init
+    Celluloid.boot
   end
 
   def teardown
-    @server.stop if defined?(@server)
     @client.close if defined?(@client)
+    @server.stop if defined?(@server)
+    Celluloid.shutdown
   end
 
   def app
@@ -20,7 +21,7 @@ class ContainerTest < Minitest::Test
   end
 
   def server_uri
-    "http://127.0.0.1:8989"
+    "http://localhost:8989"
   end
 
 end

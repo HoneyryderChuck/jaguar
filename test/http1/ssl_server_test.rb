@@ -1,7 +1,8 @@
-require_relative "http_server_test"
+require_relative "../test_container"
 
 class Jaguar::HTTP1::SSLServerTest < ContainerTest 
   include Requests::PlainGet
+
   private
 
   def app 

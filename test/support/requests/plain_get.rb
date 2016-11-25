@@ -8,8 +8,8 @@ module Requests
           rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
         else
           rep.status = 400
-          rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
           rep.body = %w(Wrong)
+          rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
         end
       end 
 
@@ -19,9 +19,7 @@ client
 
       assert response.status == 200, "response status code is unexpected"
       assert response.headers["content-length"].include?("5"), "response content length is unexpected"
-      assert response.body == "Right", "response body is unexpected"
-    ensure
-      client.close if client
+      assert response.body == %w(Right), "response body is unexpected"
     end
 
 
