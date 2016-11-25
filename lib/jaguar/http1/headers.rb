@@ -4,30 +4,39 @@ module Jaguar::HTTP1
       @headers = {}
       return unless h
       h.each do |k, v|
-        @headers[k.downcase] = v
+        @headers[k.downcase] = Array(String(v))
       end
     end
   
     def [](key)
-      @headers[key.downcase]
+      a = @headers[key.downcase] or return
+      a.join(",")
     end
   
     def []=(k, v)
-      @headers[k.downcase] = String(v)
+      return unless v
+      @headers[k.downcase] = [String(v)]
+    end
+
+    def add_field(k, v)
+      (@headers[k.downcase] ||= []) << String(v)
     end
   
-    def each(&act)
-      @headers.each(&act)
+    def each
+      return enum_for(__method__) {@headers.size } unless block_given?
+      @headers.each do |k, v|
+        yield k, v.join(", ")
+      end
     end
 
     def each_capitalized
       return enum_for(__method__) {@headers.size } unless block_given?
-      @headers.each do |k,v|
-        yield capitalize(k), String(v)
+      @headers.each do |k, v|
+        yield capitalize(k), v.join(", ") 
       end
     end
 
-    def to_hash ; @headers ; end
+    def to_hash ; Hash[Array(each)] ; end
 
     private
 
