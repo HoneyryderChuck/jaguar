@@ -18,9 +18,6 @@ module Requests
       response = up.response
 
       assert response.status == 200, "couldn't parse upgraded http2 status"
-    ensure
-      client.close if client
-      up.close if up
     end
 
     private
