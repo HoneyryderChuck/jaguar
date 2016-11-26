@@ -10,6 +10,9 @@ module Jaguar
       Celluloid::Actor[:reactor].async(:run, action)
     end
 
+    def num_connections
+      Celluloid::Actor[:reactor].num_connections
+    end 
 
     def stop
       @reactor.terminate if @reactor and @reactor.alive?

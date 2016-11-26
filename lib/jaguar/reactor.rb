@@ -1,12 +1,18 @@
 module Jaguar
   class Reactor 
     include Celluloid::IO
+
+    KeepAliveTimeout = Class.new(Timeout::Error)
     finalizer :stop
+
+    attr_reader :num_connections
 
     def initialize(proxy, **options)
       @options = options
       @server = Socket.try_convert(proxy)
+      @keep_alive_timeout = options.fetch(:keep_alive_timeout, 60)
       @debug_output = @options[:debug_output] ? $stderr : nil
+      @num_connections = 0
     end
 
     def run(action)
@@ -25,6 +31,7 @@ module Jaguar
     private
 
     def handle_connection(sock, action)
+      @num_connections += 1
       data = sock.readpartial(1024)
       if is_http1?(data)
         code, request = catch(:upgrade) { handle_http1(sock, action, initial: data) }
@@ -38,10 +45,13 @@ module Jaguar
         handle_http2(sock, action, initial: data)
       end
     rescue Errno::ECONNRESET, IOError, 
-           OpenSSL::SSL::SSLError => e
+           OpenSSL::SSL::SSLError,
+           TaskTimeout,    # keep alive timeouts
+           HTTP1::ConnectionError => e # use when client aborts connection 
       LOG { e.message }
       LOG { e.backtrace.join("\n") }
       sock.close
+      @num_connections -= 1
     end
 
     def is_http1?(data)
@@ -49,11 +59,14 @@ module Jaguar
     end
 
     def handle_http1(sock, action, initial: nil)
-      HTTP1::Handler.new(sock, initial: initial) do |req, res|
+      handler = HTTP1::Handler.new(sock, initial: initial) do |req, res|
         action.call(req, res)
-        res.flush(sock)
         LOG { "HTTP1 #{req.url} -> #{res.status}" }
-        sock.close # TODO: keep-alive
+      end
+      while handler.handle_request
+        timeout(@keep_alive_timeout) do
+          sock.wait_readable
+        end
       end
     end
 

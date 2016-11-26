@@ -1,20 +1,28 @@
 module Jaguar::HTTP1
   BUFFER_SIZE = 16_384
+  ConnectionError = Class.new(StandardError)
   class Handler
 
     def initialize(transport, initial: nil, &action)
       @transport = transport
       @parser = Parser.new
+      @action = action
       @parser << initial if initial
+    end
+
+    def handle_request
       headers = read_headers!
       request = Request.new(@parser, body.to_a)
       response = Response.new
-      case request.headers["Upgrade"]
+
+      conn_state = request.headers["connection"]
+
+      case request.headers["upgrade"]
       when "h2c"
         if request.headers["http2-settings"]
           response.status = 101
-          response.headers["Connection"] = "Upgrade" 
-          response.headers["Upgrade"] = "h2c"
+          response.headers["connection"] = "Upgrade" 
+          response.headers["upgrade"] = "h2c"
           response.flush(@transport)
           throw(:upgrade, ["h2c", request]) 
         end
@@ -22,7 +30,19 @@ module Jaguar::HTTP1
       else
         # TODO: what to do if upgrade is not supported? 
       end
-      action.call(request, response) 
+      @action.call(request, response)
+
+      response.headers["connection"] = conn_state
+
+      response.flush(@transport)
+
+      case request.headers["connection"]
+      when "keep-alive"
+        @parser.reset
+        true
+      when "close", nil
+        false 
+      end
     end
 
 
@@ -41,7 +61,7 @@ module Jaguar::HTTP1
     def read_headers!
       loop do
         if read(BUFFER_SIZE) == :eof
-          raise "couldn't read headers" unless @parser.headers?
+          raise ConnectionError, "couldn't read request" unless @parser.headers?
           break
         elsif @parser.headers?
           break
@@ -60,6 +80,8 @@ module Jaguar::HTTP1
       when :eof
         :eof
       end
+    rescue EOFError
+      :eof
     rescue IOError, SocketError, SystemCallError => ex
       raise "error reading from socket: #{ex}", ex.backtrace
     end

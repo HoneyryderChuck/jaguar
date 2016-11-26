@@ -27,7 +27,7 @@ module Jaguar
 
     private
 
-    def build_server
+    def build_server(options=@options)
       sock_server = case @uri.scheme
       when "http"
         server = TCPServer.new(@uri.host, @uri.port)
@@ -35,12 +35,12 @@ module Jaguar
         server.setsockopt(Socket::SOL_SOCKET,Socket::SO_REUSEADDR, true)
         server
       when "https"
-        raise "must pass ssl certificate" unless @options[:ssl_cert]
-        raise "must pass ssl key" unless @options[:ssl_key]
+        raise "must pass ssl certificate" unless options[:ssl_cert]
+        raise "must pass ssl key" unless options[:ssl_key]
  
         ctx = OpenSSL::SSL::SSLContext.new
-        ctx.cert = OpenSSL::X509::Certificate.new(@options.delete(:ssl_cert))
-        ctx.key  = OpenSSL::PKey::RSA.new(@options.delete(:ssl_key))
+        ctx.cert = OpenSSL::X509::Certificate.new(options.delete(:ssl_cert))
+        ctx.key  = OpenSSL::PKey::RSA.new(options.delete(:ssl_key))
 
         ctx.ssl_version = :TLSv1_2
         ctx.options = OpenSSL::SSL::SSLContext::DEFAULT_PARAMS[:options]
@@ -66,7 +66,7 @@ module Jaguar
         raise "unsupported scheme type for uri (#{@uri.to_s})"
       end
       sock_server.listen(1024)
-      Server.new(sock_server, @options)
+      Server.new(sock_server, options)
     end
 
     def handle_signal(signal)
