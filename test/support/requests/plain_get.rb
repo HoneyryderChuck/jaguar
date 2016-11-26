@@ -13,8 +13,6 @@ module Requests
         end
       end 
 
-client
-
       response = client.request(:get,"#{server_uri}/", headers: {"accept" => "*/*"})
 
       assert response.status == 200, "response status code is unexpected"

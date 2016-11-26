@@ -27,7 +27,8 @@ module Jaguar
 
     private
 
-    def build_server(options=@options)
+    def build_server(options={})
+      options = @options.merge(options)
       sock_server = case @uri.scheme
       when "http"
         server = TCPServer.new(@uri.host, @uri.port)

@@ -2,6 +2,7 @@ require_relative "../test_container"
 
 class Jaguar::HTTP1::SSLServerTest < ContainerTest 
   include Requests::PlainGet
+  include Requests::KeepAliveGet
 
   private
 
