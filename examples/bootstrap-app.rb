@@ -43,9 +43,12 @@ APP = ->(req, res) do
   end
 end
 
-uri = "https://localhost:9292"
-cert = File.read("test/support/ssl/server.crt")
-key  = File.read("test/support/ssl/server.key")
-container = Jaguar::Container.new(uri, ssl_cert: cert, ssl_key: key)
+config = Jaguar::Config.load do
+  bind "https://localhost:9292"
+  ssl_cert File.read("test/support/ssl/server.crt")
+  ssl_key  File.read("test/support/ssl/server.key")
+end
+#container = Jaguar::Container.new(uri, ssl_cert: cert, ssl_key: key)
+container = Jaguar::Container.new(config.url, config.options)
 puts "server is on..."
 container.run(&APP)

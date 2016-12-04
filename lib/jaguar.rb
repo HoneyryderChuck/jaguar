@@ -13,6 +13,7 @@ require "celluloid/io"
 require "http/parser"
 require "http/2"
 
+require "jaguar/config"
 
 require "jaguar/container"
 require "jaguar/reactor"

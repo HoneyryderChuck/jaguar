@@ -2,8 +2,9 @@ require "uri"
 
 module Jaguar
   class Container
+
     def initialize(uri, **options)
-      @uri = URI.parse(uri)
+      @uri = uri.is_a?(URI::Generic) ? uri : URI.parse(uri)
       @options = options
       @__r__, @__w__ = IO.pipe
     end
