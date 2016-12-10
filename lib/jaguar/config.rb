@@ -12,7 +12,7 @@ module Jaguar
     end
 
     def bind(url)
-      @url = URI(url)
+      @options[:uri] = URI(url)
     end
 
     def debug(deb=false)
