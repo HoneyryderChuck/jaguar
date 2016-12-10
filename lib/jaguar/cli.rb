@@ -3,7 +3,8 @@ module Jaguar
   class CLI
     DEFAULTOPTIONS={
       port: 9292,
-      host: "localhost"
+      host: "localhost",
+      protocols: %w(http1 http2)
     }
 
     def initialize(argv = ARGV)
