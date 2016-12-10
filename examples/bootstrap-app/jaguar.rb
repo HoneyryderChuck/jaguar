@@ -17,7 +17,7 @@ app do |req, res|
     ext = file.extname[1..-1] # trailing "."
     body = file.read
     # promise
-    if ext.end_with?("html") and req.version > "2"
+    if ext.end_with?("html") and req.version >= "2"
       %w{
 /css/bootstrap.min.css
 /css/bootstrap-theme.min.css
@@ -35,7 +35,7 @@ app do |req, res|
     res.headers["content-type"] = "text/#{ext}"
     res.headers["content-length"] = body.bytesize.to_s
     res.body = [body]
-    res.enable_push!([ROOT]) if req.version == "2"
+    res.enable_push!([ROOT]) if req.version >= "2"
   else
     body = "Not Found!"
     res.status = 404
