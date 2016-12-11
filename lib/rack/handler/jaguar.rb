@@ -58,7 +58,7 @@ module Rack
             body.each do |chunk|
               rep.body << chunk
             end
-            rep.headers["Content-Length"] = rep.body.map(&:length).reduce(:+)
+            rep.headers["content-length"] = rep.body.map(&:length).reduce(:+)
           else
             Logger.error("don't know how to render: #{body.inspect}")
             request.respond :internal_server_error, "An error occurred processing your request"
