@@ -39,7 +39,11 @@ module Jaguar
         end
 
         o.on "-c", "--config PATH", "Load PATH as a config file" do |path|
-            @options[:config] = Config.load(path) 
+          @options[:config] = Config.load(path) 
+        end
+
+        o.on "--protocols PROTOCOLS", "colon-separated http versions supported (ex: http1:http2)" do |proto|
+          @options[:protocols] = proto.split(":")
         end
 
         o.on "--ssl-cert PATH",
