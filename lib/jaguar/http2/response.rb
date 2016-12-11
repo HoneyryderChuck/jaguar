@@ -1,12 +1,13 @@
 module Jaguar::HTTP2
-  class Response
-    attr_accessor :status, :headers, :body
+  class Response < Jaguar::HTTP::Response
 
+    def initialize(status: 200, headers: HTTP2::Headers.new, body: [])
+      super
+    end
 
-    def initialize(status: 200, headers: Headers.new, body: [])
-      @status = status
-      @headers = headers 
-      @body = []
+    def post_process(request)
+      super
+      @headers["referer"] ||= request.headers[":authority"]
     end
 
     def enable_push!(resource_dirs)
@@ -51,10 +52,5 @@ module Jaguar::HTTP2
       end if @promises
     end
 
-    private
-
-    def reason
-      WEBrick::HTTPStatus::StatusMessage[@status]
-    end
   end
 end

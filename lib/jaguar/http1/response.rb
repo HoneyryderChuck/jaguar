@@ -1,18 +1,12 @@
 
 module Jaguar::HTTP1
   CRLF = "\r\n"
-  class Response
-
-    attr_reader :headers
-    attr_accessor :status, :body
+  class Response < Jaguar::HTTP::Response
 
     def initialize(status: 200, headers: Headers.new, body: [])
-      @status = status
-      @headers = headers
-      @body   = Array(body) 
+      super
     end
 
-    
     def flush(sock)
       sock = sock
       return if @done
@@ -26,6 +20,9 @@ module Jaguar::HTTP1
       end if @body
     end
 
+    def post_process(request)
+      super
+    end
 
     private
 
@@ -34,13 +31,5 @@ module Jaguar::HTTP1
       sock.write(payload)
     end
 
-    def reason
-      WEBrick::HTTPStatus::StatusMessage[@status]
-    end
-
-    def LOG(&msg)
-      return unless $JAGUAR_DEBUG
-      $stderr << "server response: " + msg.call.inspect + "\n"
-    end
   end
 end

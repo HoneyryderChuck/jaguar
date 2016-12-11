@@ -39,9 +39,9 @@ module Jaguar::HTTP2
     def on_stream(stream)
       Request.new(stream) do |req|
         res = Response.new
-        res.headers["referer"] = req.headers[":authority"]
         @action.call(req, res)
-        res.headers["server"] = "jaguar"
+        res.post_process(req)
+
         res.flush(stream)
       end
     end
@@ -54,7 +54,7 @@ module Jaguar::HTTP2
         ':method'    => http1_request.verb,
         ':authority' => headers.delete('host'),
         ':path'      => http1_request.url,
-      }.merge(Headers.new(headers))
+      }.merge(HTTP2::Headers.new(headers))
       @server.upgrade(settings ,request, http1_request.body)
       
     end

@@ -31,9 +31,9 @@ module Jaguar::HTTP1
         # TODO: what to do if upgrade is not supported? 
       end
       @action.call(request, response)
+      response.post_process(request)
 
       response.headers["connection"] = conn_state
-
       response.flush(@transport)
 
       case request.headers["connection"]
