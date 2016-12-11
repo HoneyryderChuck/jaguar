@@ -15,8 +15,6 @@ module Jaguar::HTTP1
       request = Request.new(@parser, body.to_a)
       response = Response.new
 
-      conn_state = request.headers["connection"]
-
       case request.headers["upgrade"]
       when "h2c"
         if request.headers["http2-settings"]
@@ -33,10 +31,9 @@ module Jaguar::HTTP1
       @action.call(request, response)
       response.post_process(request)
 
-      response.headers["connection"] = conn_state
       response.flush(@transport)
 
-      case request.headers["connection"]
+      case response.headers["connection"]
       when "keep-alive"
         @parser.reset
         true

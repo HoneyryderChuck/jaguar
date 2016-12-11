@@ -22,6 +22,16 @@ module Jaguar::HTTP1
 
     def post_process(request)
       super
+
+      # handle keep alive
+      @headers["connection"] ||= begin
+        if (conn = request.headers["connection"]) &&
+           /keep-alive/io =~ conn
+          "keep-alive"
+        else
+          "close"
+        end
+      end 
     end
 
     private

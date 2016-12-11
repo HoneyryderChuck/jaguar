@@ -1,5 +1,6 @@
 require "jaguar/version"
 
+require "time"
 require "base64"
 require "io/wait"
 require "openssl"

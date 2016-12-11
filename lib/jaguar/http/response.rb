@@ -14,7 +14,10 @@ module Jaguar::HTTP
     end
 
     def post_process(request)
+      # set default headers (adapted from webrick http response)
       @headers["server"] ||= "Jaguar/#{Jaguar::VERSION} (Ruby/#{RUBY_VERSION}/#{RUBY_RELEASE_DATE}"
+      @headers["date"] ||= Time.now.httpdate
+
     end
 
     private
