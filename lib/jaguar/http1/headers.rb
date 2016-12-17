@@ -3,8 +3,8 @@ module Jaguar::HTTP1
 
     def each_capitalized
       return enum_for(__method__) {@headers.size } unless block_given?
-      @headers.each do |k, v|
-        yield capitalize(k), v.join(", ") 
+      each do |k, v|
+        yield capitalize(k), v
       end
     end
 

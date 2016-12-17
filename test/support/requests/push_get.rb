@@ -13,7 +13,7 @@ module Requests
           rep.headers["content-type"] = "text/plain"
           rep.headers["content-length"] = 5
 
-          rep.headers.add_field("Link", "</main.css>; rel=preload; as=style")
+          rep.headers.add("Link", "</main.css>; rel=preload; as=style")
 
 
           rep.enable_push!([assets_dir])

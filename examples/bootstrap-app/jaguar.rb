@@ -28,7 +28,7 @@ app do |req, res|
       }.each do |path|
         puts "pushing #{path} ..."
         as = path.end_with?("css") ? "style" : "script"
-        res.headers.add_field("Link", "<#{path}>; rel=preload; as=#{as}")
+        res.headers.add("Link", "<#{path}>; rel=preload; as=#{as}")
       end
     end
 
