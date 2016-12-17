@@ -33,6 +33,7 @@ module Jaguar::HTTP1
 
       response.flush(@transport)
 
+      LOG { "HTTP1 #{request.url} -> #{response.status}" }
       case response.headers["connection"]
       when "keep-alive"
         @parser.reset

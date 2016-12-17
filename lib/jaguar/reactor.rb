@@ -59,11 +59,8 @@ module Jaguar
     end
 
     def handle_http1(sock, action, initial: nil)
-      handler = HTTP1::Handler.new(sock, initial: initial) do |req, res|
-        action.call(req, res)
-        LOG { "HTTP1 #{req.url} -> #{res.status}" }
-      end
-      while handler.handle_request
+      handler = HTTP1::Handler.new(sock, initial: initial, &action)
+      while handler.handle_request(&action)
         timeout(@keep_alive_timeout) do
           sock.wait_readable
         end
@@ -71,12 +68,8 @@ module Jaguar
     end
 
     def handle_http2(sock, action, initial: nil, upgrade: nil)
-      HTTP2::Handler.new(sock, initial: initial, upgrade: upgrade) do |req, res|
-        action.call(req, res)
-        LOG { "HTTP2 #{req.url} -> #{res.status}" }
-      end
+      HTTP2::Handler.new(sock, initial: initial, upgrade: upgrade, &action)
     end
-
 
     def LOG(&msg)
       return unless $JAGUAR_DEBUG 

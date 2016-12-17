@@ -37,12 +37,12 @@ module Jaguar::HTTP2
     end
 
     def on_stream(stream)
-      Request.new(stream) do |req|
-        res = Response.new
-        @action.call(req, res)
-        res.post_process(req)
-
-        res.flush(stream)
+      Request.new(stream) do |request|
+        response = Response.new
+        @action.call(request, response)
+        response.post_process(request)
+        response.flush(stream)
+        LOG{ "HTTP2 #{request.url} -> #{response.status}" }
       end
     end
 
