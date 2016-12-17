@@ -4,7 +4,7 @@ module Jaguar::HTTP
     attr_reader :headers
 
     def initialize(status: 200, headers: Headers.new, body: [])
-      @status = status
+      @status = status.to_i
       @headers = headers 
       @body = Array(body)
     end
