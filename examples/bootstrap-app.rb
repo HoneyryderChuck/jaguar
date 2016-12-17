@@ -33,7 +33,7 @@ APP = ->(req, res) do
     res.headers["content-type"] = "text/#{ext}"
     res.headers["content-length"] = body.bytesize.to_s
     res.body = [body]
-    res.enable_push!([ROOT])
+    res.enable_push!([ROOT]) if res.respond_to?(:enable_push!)
   else
     body = "Not Found!"
     res.status = 404
