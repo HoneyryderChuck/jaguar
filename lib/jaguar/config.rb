@@ -1,6 +1,6 @@
 module Jaguar
   class Config
-    attr_reader :url, :options
+    attr_reader :options
     def initialize
       @options = {}
     end
@@ -9,6 +9,10 @@ module Jaguar
       @app ||= obj || action
       raise "you must set an app" unless @app and @app.respond_to?(:call)
       @app
+    end
+
+    def uri
+      @options[:uri]
     end
 
     def bind(url)

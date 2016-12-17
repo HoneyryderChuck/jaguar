@@ -49,6 +49,6 @@ config = Jaguar::Config.load do
   ssl_key  File.read("test/support/ssl/server.key")
 end
 #container = Jaguar::Container.new(uri, ssl_cert: cert, ssl_key: key)
-container = Jaguar::Container.new(config.url, config.options)
+container = Jaguar::Container.new(config.uri, config.options)
 puts "server is on..."
 container.run(&APP)
