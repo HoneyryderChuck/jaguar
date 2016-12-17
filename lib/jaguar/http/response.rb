@@ -18,6 +18,13 @@ module Jaguar::HTTP
       @headers["server"] ||= "Jaguar/#{Jaguar::VERSION} (Ruby/#{RUBY_VERSION}/#{RUBY_RELEASE_DATE}"
       @headers["date"] ||= Time.now.httpdate
 
+      # rework content-length/transfer-encoding
+      # Determine the message length (RFC2616 -- 4.4 Message Length)
+      # 4.4.1
+      if @status == 304 || @status == 204 || WEBrick::HTTPStatus::info?(@status)
+        @headers.delete('content-length')
+        @body.clear unless @body.empty?
+      end
     end
 
     private

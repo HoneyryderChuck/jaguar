@@ -54,14 +54,12 @@ module Rack
           end
 
           if body.respond_to? :each
-            # Can't use collect here because Rack::BodyProxy/Rack::Lint isn't a real Enumerable
-            body.each do |chunk|
-              rep.body << chunk
-            end
-            rep.headers["content-length"] = rep.body.map(&:length).reduce(:+)
+            rep.body = body
           else
-            Logger.error("don't know how to render: #{body.inspect}")
-            request.respond :internal_server_error, "An error occurred processing your request"
+            $stderr.puts "don't know how to render: #{body.inspect}"
+            rep.status = 500
+            rep.headers["content-type"] = "text/plain"
+            rep.body= %w(An error occurred processing your request)
           end
 
           body.close if body.respond_to? :close
