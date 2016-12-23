@@ -24,10 +24,36 @@ module Jaguar::HTTP
       if @status == 304 || @status == 204 || WEBrick::HTTPStatus::info?(@status)
         @headers.delete('content-length')
         @body.clear unless @body.empty?
+
+      else
+        encoding, @encoder = Jaguar::Transcoder.choose(request.headers["accept-encoding"])
+        unless encoding.nil? or encoding == "identity"
+          @headers.delete("content-length")
+          @headers.add("transfer-encoding", encoding)
+
+        end
       end
     end
 
     private
+
+    def encode(&action)
+      return enum_for(__method__) unless block_given?
+      if @encoder
+        mtime = @headers["last-modified"] ?
+                Time.httpdate(@headers["last-modified"]) : 
+                Time.now
+        @encoder.encode(mtime: mtime) do |encoder|
+          @body.each do |chunk|
+            encoder.encode(chunk) do |encoded|
+              action.call(encoded)
+            end
+          end
+        end
+      else
+        @body.each(&action)
+      end
+    end
 
     def reason
       WEBrick::HTTPStatus::StatusMessage[@status]

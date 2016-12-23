@@ -4,6 +4,7 @@ class Jaguar::HTTP2::HTTPServerTest < ContainerTest
 
   include Requests::PlainGet
   include Requests::PushGet
+  include Requests::EncodingGet
 
   private
 
