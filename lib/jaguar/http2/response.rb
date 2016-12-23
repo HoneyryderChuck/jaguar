@@ -39,7 +39,7 @@ module Jaguar::HTTP2
           end
         end
       end
-      @body.each do |chunk|
+      encode.each do |chunk|
         stream.data(chunk, end_stream: false)
       end if @body
       stream.data("")
