@@ -48,6 +48,8 @@ module Jaguar::HTTP1
 
     def body
       Enumerator.new do |y|
+        chunk = @parser.chunk
+        y << chunk if chunk
         while !((read(BUFFER_SIZE) == :eof) || @parser.finished?)
           chunk = @parser.chunk
           y << chunk

@@ -1,13 +1,12 @@
 module Jaguar::HTTP1
   class Chunker
-     CRLF = "\r\n"
 
      def initialize(generator)
        @gen = generator
      end
 
      def each(&action)
-       enum_for(:method) unless block_given?
+       enum_for(__method__) unless block_given?
 
        @gen.each do |payload|
          next unless (size = payload.bytesize) > 0
