@@ -40,6 +40,12 @@ module Jaguar
       @options[:protocols] = protocols.map(&:to_s)
     end
 
+    # set another order of accept encoding preference
+    def preferred_encodings(encodings)
+      Transcoder.preferred = encodings
+    end
+
+    # TODO: timeouts
 
     class << self
 

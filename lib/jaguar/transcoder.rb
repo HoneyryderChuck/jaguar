@@ -1,9 +1,20 @@
 require "zlib"
 module Jaguar
   module Transcoder
+
     PREFERRED = %w(gzip deflate identity).freeze
 
-     def self.choose(encodings)
+    def self.preferred
+      @preferred ||= PREFERRED
+    end
+
+    def self.preferred=(encodings)
+      # only set once
+      raise "preferred encodings already set" if defined?(@preferred)
+      @preferred = Array(encodings)
+    end
+
+    def self.choose(encodings)
       encoding = select(PREFERRED, encodings)
       encoder  = case encoding
       when "gzip" then GZIP
