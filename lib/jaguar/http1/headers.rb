@@ -8,6 +8,10 @@ module Jaguar::HTTP1
       end
     end
 
+    def add_header(k, v)
+      super(k, capitalize(v))
+    end
+
     private
 
     def capitalize(name)

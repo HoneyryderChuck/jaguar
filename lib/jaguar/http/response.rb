@@ -30,7 +30,10 @@ module Jaguar::HTTP
         unless encoding.nil? or encoding == "identity"
           @headers.delete("content-length")
           @headers.add("transfer-encoding", encoding)
+        end
 
+        unless @headers.get("vary").include?("*")
+          @headers.add_header("vary", "accept-encoding")
         end
       end
     end

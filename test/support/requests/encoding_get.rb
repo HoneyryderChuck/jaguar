@@ -18,6 +18,8 @@ module Requests
                                                "accept-encoding" => "*"})
 
       assert response.status == 200, "response status code is unexpected"
+      assert vary(response).include?("accept-encoding") ||
+             vary(response).include?("Accept-Encoding"), "vary headers is unexpected"
       assert transfer_encoding(response) != nil, "response encoding is unexpected"
       assert transfer_encoding(response).include?("gzip"), "response encoding is unexpected"
     end
@@ -39,6 +41,8 @@ module Requests
                                                "accept-encoding" => "gzip"})
 
       assert response.status == 200, "response status code is unexpected"
+      assert vary(response).include?("accept-encoding") ||
+             vary(response).include?("Accept-Encoding"), "vary headers is unexpected"
       assert transfer_encoding(response) != nil, "response encoding is unexpected"
       assert transfer_encoding(response).include?("gzip"), "response encoding is unexpected"
     end
@@ -59,6 +63,8 @@ module Requests
                                                "accept-encoding" => "deflate"})
 
       assert response.status == 200, "response status code is unexpected"
+      assert vary(response).include?("accept-encoding") ||
+             vary(response).include?("Accept-Encoding"), "vary headers is unexpected"
       assert transfer_encoding(response) != nil, "response encoding is unexpected"
       assert transfer_encoding(response).include?("deflate"), "response encoding is unexpected"
     end
@@ -81,18 +87,30 @@ module Requests
                                                "accept-encoding" => "identity"})
 
       assert response.status == 200, "response status code is unexpected"
+      assert vary(response).include?("accept-encoding") ||
+             vary(response).include?("Accept-Encoding"), "vary headers is unexpected"
       assert transfer_encoding(response) == nil, "response encoding is unexpected"
     end
 
+    private
+
+    def vary(response)
+      parse_multivalue_headers(response.headers["vary"])
+    end
+
     def transfer_encoding(response)
-      v = response.headers["transfer-encoding"]
-      if v.is_a?(Array)
-        # thank you, net/http
-        v = v.flat_map do |enc|
-          enc.split(/\s*,\s*/)
-        end
-      end
-      v
+      parse_multivalue_headers(response.headers["transfer-encoding"])
+    end
+
+    def parse_multivalue_headers(header)
+     if header.is_a?(Array)
+       # thank you, net/http
+       header.flat_map do |enc|
+         enc.split(/\s*,\s*/)
+       end
+     else
+       header
+     end
     end
   end
 end

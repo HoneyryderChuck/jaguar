@@ -29,6 +29,9 @@ module Jaguar::HTTP
     def add(k, v)
       (@headers[k.downcase] ||= []) << String(v)
     end
+
+    # helper to be used when adding values that should refer to http headers
+    alias_method :add_header, :add
   
     def each
       return enum_for(__method__) {@headers.size } unless block_given?
