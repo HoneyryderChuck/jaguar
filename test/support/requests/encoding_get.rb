@@ -18,11 +18,22 @@ module Requests
                                                "accept-encoding" => "*"})
 
       assert response.status == 200, "response status code is unexpected"
-      assert response.headers["transfer-encoding"] != nil, "response encoding is unexpected"
-      assert response.headers["transfer-encoding"].include?("gzip"), "response encoding is unexpected"
+      assert transfer_encoding(response) != nil, "response encoding is unexpected"
+      assert transfer_encoding(response).include?("gzip"), "response encoding is unexpected"
     end
 
 
+
+    def transfer_encoding(response)
+      v = response.headers["transfer-encoding"]
+      if v.is_a?(Array)
+        # thank you, net/http
+        v = v.flat_map do |enc|
+          enc.split(/\s*,\s*/)
+        end
+      end
+      v
+    end
   end
 end
 
