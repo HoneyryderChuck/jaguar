@@ -4,14 +4,8 @@ module Requests
  
       server = app.send(:build_server, keep_alive_timeout: 2)
       server.run do |req, rep|
-        if req.url == "/"
-          rep.body = %w(Right)
-          rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
-        else
-          rep.status = 400
-          rep.body = %w(Wrong)
-          rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
-        end
+        rep.body = %w(Right)
+        rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
       end 
 
       response = client.request(:get,"#{server_uri}/", headers: keep_alive_headers)

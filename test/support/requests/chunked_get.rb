@@ -3,13 +3,7 @@ module Requests
 
     def test_chunked_get
       server.run do |req, rep|
-        if req.url == "/"
-          rep.body = %w(Left Right)
-        else
-          rep.status = 400
-          rep.body = %w(Wrong)
-          rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
-        end
+        rep.body = %w(Left Right)
       end 
 
       response = client.request(:get,"#{server_uri}/", headers: {"accept" => "*/*"})
