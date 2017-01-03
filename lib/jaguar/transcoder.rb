@@ -7,6 +7,7 @@ module Jaguar
       encoding = select(PREFERRED, encodings)
       encoder  = case encoding
       when "gzip" then GZIP
+      when "deflate" then Deflate
       when "identity", nil then Identity 
       else
         raise "Unsupported encoding"

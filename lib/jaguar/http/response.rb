@@ -44,10 +44,8 @@ module Jaguar::HTTP
                 Time.httpdate(@headers["last-modified"]) : 
                 Time.now
         @encoder.encode(mtime: mtime) do |encoder|
-          @body.each do |chunk|
-            encoder.encode(chunk) do |encoded|
-              action.call(encoded)
-            end
+          encoder.encode(@body) do |encoded|
+            action.call(encoded)
           end
         end
       else

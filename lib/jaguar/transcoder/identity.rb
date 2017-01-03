@@ -4,8 +4,10 @@ module Jaguar::Transcoder
       yield new
     end
 
-    def encode(chunk)
-      yield chunk
+    def encode(body)
+      body.each do |chunk|
+        yield chunk
+      end
     end
   end
 end

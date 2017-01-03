@@ -14,19 +14,22 @@ module Jaguar::Transcoder
       @gzip.mtime = mtime
     end 
  
-    def encode(chunk, &blk)
-      @callback = blk
-      @gzip.write(chunk)
-      @gzip.flush
-    end
-
-    def write(chunk)
-      @callback.call(chunk)
+    def encode(body, &blk)
+      body.each do |chunk|
+        @callback = blk
+        @gzip.write(chunk)
+        @gzip.flush
+      end
     end
 
     def close
       @gzip.close
       @callback = nil
     end
+
+    def write(chunk)
+      @callback.call(chunk)
+    end
+
   end
 end

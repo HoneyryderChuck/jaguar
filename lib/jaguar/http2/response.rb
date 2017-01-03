@@ -45,6 +45,7 @@ module Jaguar::HTTP2
       stream.data("")
       @promises.each_with_index do |promise, i|
         push_stream = push_streams[i]
+        # TODO: encody promise body chunks when available
         promise.body.each do |chunk|
           push_stream.data(chunk, end_stream: false)
         end if promise.body
