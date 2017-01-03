@@ -2,22 +2,17 @@ module Requests
   module PlainGet
 
     def test_get
+      body = "Right"
       server.run do |req, rep|
-        if req.url == "/"
-          rep.body = %w(Right)
-          rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
-        else
-          rep.status = 400
-          rep.body = %w(Wrong)
-          rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
-        end
+        rep.body = [body]
+        rep.headers["content-length"] = body.bytesize 
       end 
 
       response = client.request(:get,"#{server_uri}/", headers: {"accept" => "*/*"})
 
       assert response.status == 200, "response status code is unexpected"
       assert response.headers["content-length"].include?("5"), "response content length is unexpected"
-      assert response.body == %w(Right), "response body is unexpected"
+      assert response.body == [body], "response body is unexpected"
     end
 
 
