@@ -12,8 +12,8 @@ module Requests
 
       assert response.status == 200, "response status code is unexpected"
       verify_vary_accept_encoding(response)
-      assert transfer_encoding(response) != nil, "response encoding is unexpected"
-      assert transfer_encoding(response).include?("gzip"), "response encoding is unexpected"
+      assert content_encoding(response) != nil, "response encoding is unexpected"
+      assert content_encoding(response).include?("gzip"), "response encoding is unexpected"
     end
 
     def test_encoding_gzip
@@ -27,8 +27,8 @@ module Requests
 
       assert response.status == 200, "response status code is unexpected"
       verify_vary_accept_encoding(response)
-      assert transfer_encoding(response) != nil, "response encoding is unexpected"
-      assert transfer_encoding(response).include?("gzip"), "response encoding is unexpected"
+      assert content_encoding(response) != nil, "response encoding is unexpected"
+      assert content_encoding(response).include?("gzip"), "response encoding is unexpected"
     end
     def test_encoding_deflate
       server.run do |req, rep|
@@ -41,8 +41,8 @@ module Requests
 
       assert response.status == 200, "response status code is unexpected"
       verify_vary_accept_encoding(response)
-      assert transfer_encoding(response) != nil, "response encoding is unexpected"
-      assert transfer_encoding(response).include?("deflate"), "response encoding is unexpected"
+      assert content_encoding(response) != nil, "response encoding is unexpected"
+      assert content_encoding(response).include?("deflate"), "response encoding is unexpected"
     end
 
 
@@ -59,7 +59,7 @@ module Requests
 
       assert response.status == 200, "response status code is unexpected"
       verify_vary_accept_encoding(response)
-      assert transfer_encoding(response) == nil, "response encoding is unexpected"
+      assert content_encoding(response) == nil, "response encoding is unexpected"
     end
 
     private
@@ -73,8 +73,8 @@ module Requests
       parse_multivalue_headers(response.headers["vary"])
     end
 
-    def transfer_encoding(response)
-      parse_multivalue_headers(response.headers["transfer-encoding"])
+    def content_encoding(response)
+      parse_multivalue_headers(response.headers["content-encoding"])
     end
 
     def parse_multivalue_headers(header)

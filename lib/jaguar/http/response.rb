@@ -29,7 +29,7 @@ module Jaguar::HTTP
         encoding, @encoder = Jaguar::Transcoder.choose(request.headers["accept-encoding"])
         unless encoding.nil? or encoding == "identity"
           @headers.delete("content-length")
-          @headers.add("transfer-encoding", encoding)
+          @headers.add("content-encoding", encoding)
         end
 
         unless @headers.get("vary").include?("*")
