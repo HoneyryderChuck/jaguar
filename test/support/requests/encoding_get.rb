@@ -64,6 +64,26 @@ module Requests
     end
 
 
+    def test_encoding_identity
+      server.run do |req, rep|
+        if req.url == "/"
+          rep.body = %w(Right)
+          rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
+        else
+          rep.status = 400
+          rep.body = %w(Wrong)
+          rep.headers["content-length"] = rep.body.map(&:bytesize).reduce(:+)
+        end
+      end 
+
+      response = client.request(:get,"#{server_uri}/", 
+                                     headers: {"accept" => "*/*",
+                                               "accept-encoding" => "identity"})
+
+      assert response.status == 200, "response status code is unexpected"
+      assert transfer_encoding(response) == nil, "response encoding is unexpected"
+    end
+
     def transfer_encoding(response)
       v = response.headers["transfer-encoding"]
       if v.is_a?(Array)
