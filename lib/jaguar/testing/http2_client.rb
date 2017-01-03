@@ -3,8 +3,6 @@ module Jaguar::HTTP2
     def initialize(sock)
       @sock = sock
       @conn = HTTP2::Client.new
-      @stream = @conn.new_stream
-      @response = Response.new(@stream)
   
       @conn.on(:frame, &method(:on_frame))
       @conn.on(:frame_sent, &method(:on_frame_sent))
@@ -18,6 +16,8 @@ module Jaguar::HTTP2
     end
 
     def request(verb, path, headers: {}, body: nil)
+      stream = @conn.new_stream
+      @response = Response.new(stream)
       uri = URI(path)
       headers[":scheme"] = uri.scheme
       headers[":method"] = case verb
@@ -25,19 +25,22 @@ module Jaguar::HTTP2
       when :post then "POST"
       end
       headers[":path"]   = uri.path
-      @stream.headers(headers, end_stream: false)
+      stream.headers(headers, end_stream: false)
       if body
-        @stream.data(body, end_stream: false)
+        stream.data(body, end_stream: false)
       end
-      @stream.data("", end_stream: true)
+      stream.data("", end_stream: true)
       response 
     end
 
-    
+    def upgrade
+      stream = @conn.new_stream
+      @response = Response.new(stream)
+    end 
  
  
     def response
-      read_data until @response and [:closed, :half_closed_remote].include?(@response.stream.state)
+      read_data until [:closed, :half_closed_remote].include?(@response.stream.state)
       @response   
     end
  

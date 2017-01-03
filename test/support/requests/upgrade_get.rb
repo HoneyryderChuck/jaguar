@@ -23,7 +23,9 @@ module Requests
 
     def upgrade_client(sock)
       @upgrade_client ||= begin
-        Jaguar::HTTP2::Client.new(sock)
+        up = Jaguar::HTTP2::Client.new(sock)
+        up.upgrade
+        up
       end
     end
  
