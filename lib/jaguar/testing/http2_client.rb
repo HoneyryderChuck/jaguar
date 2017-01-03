@@ -17,15 +17,19 @@ module Jaguar::HTTP2
       @sock.close
     end
 
-    def request(verb, path, headers: {})
+    def request(verb, path, headers: {}, body: nil)
       uri = URI(path)
       headers[":scheme"] = uri.scheme
       headers[":method"] = case verb
-      when :get then "GET"
+      when :get  then "GET"
+      when :post then "POST"
       end
       headers[":path"]   = uri.path
-      @stream.headers(headers, end_stream: true)
-
+      @stream.headers(headers, end_stream: false)
+      if body
+        @stream.data(body, end_stream: false)
+      end
+      @stream.data("", end_stream: true)
       response 
     end
 
