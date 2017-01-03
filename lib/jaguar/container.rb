@@ -3,27 +3,37 @@ require "uri"
 module Jaguar
   class Container
 
+    attr_reader :state
+
     def initialize(uri, **options)
       @uri = uri.is_a?(URI::Generic) ? uri : URI.parse(uri)
       @options = options
       @__r__, @__w__ = IO.pipe
+      @state = :idle
     end
 
 
     def run(&action)
+      # only idle containers are runnable
+      return unless @state == :idle
+
+      @state = :booting
       set_signal_handlers
 
       server = build_server
 
       server.run(&action)
 
+      @state = :running
       while @__r__.wait_readable
         signal = @__r__.gets.strip
         handle_signal(signal)
       end
     rescue Interrupt
-      STDOUT.puts "Jaguar was put to sleep..."
+      @state = :stopping
+      LOG { "Jaguar was put to sleep..." }
       server.stop if server
+      @state = :idle
     end
 
     private
