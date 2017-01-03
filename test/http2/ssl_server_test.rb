@@ -4,6 +4,9 @@ class Jaguar::HTTP2::SSLServerTest < ContainerTest
   include Requests::PlainGet 
   include Requests::PushGet 
   include Requests::EncodingGet
+
+  include Requests::PlainPost
+
   private
   def app
     @app ||= Jaguar::Container.new(server_uri, ssl_cert: File.read("test/support/ssl/server.crt"),

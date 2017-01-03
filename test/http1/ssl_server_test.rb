@@ -6,6 +6,7 @@ class Jaguar::HTTP1::SSLServerTest < ContainerTest
   include Requests::ChunkedGet
   include Requests::KeepAliveGet
 
+  include Requests::PlainPost
   private
 
   def app 

@@ -5,6 +5,8 @@ class Jaguar::HTTP2::UnixServerTest < ContainerTest
   include Requests::PlainGet
   include Requests::PushGet
 
+  include Requests::PlainPost
+
   private
   def setup
     super

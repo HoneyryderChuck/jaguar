@@ -8,6 +8,7 @@ class Jaguar::HTTP1::HTTPServerTest < ContainerTest
   include Requests::KeepAliveGet
   include Requests::UpgradeGet
 
+  include Requests::PlainPost
 
   private
  

@@ -6,6 +6,8 @@ class Jaguar::HTTP2::HTTPServerTest < ContainerTest
   include Requests::PushGet
   include Requests::EncodingGet
 
+  include Requests::PlainPost
+
   private
 
   def client
