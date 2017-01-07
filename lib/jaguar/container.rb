@@ -112,7 +112,7 @@ module Jaguar
 
     def LOG(&msg)
       return unless $JAGUAR_DEBUG 
-      @stderr << msg.call + "\n"
+      $stderr << msg.call + "\n"
     end
   end
 end
