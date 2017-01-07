@@ -5,6 +5,7 @@ class Jaguar::HTTP1::SSLServerTest < ContainerTest
   include Requests::EncodingGet
   include Requests::ChunkedGet
   include Requests::KeepAliveGet
+  include Requests::StreamGet
 
   include Requests::PlainPost
   private

@@ -6,6 +6,7 @@ class Jaguar::HTTP2::UnixServerTest < ContainerTest
   include Requests::PushGet
 
   include Requests::PlainPost
+  include Requests::StreamGet
 
   private
   def setup
