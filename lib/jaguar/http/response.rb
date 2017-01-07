@@ -40,13 +40,10 @@ module Jaguar::HTTP
     end
 
     def stream(keep_open: false)
-      return if @stream
       @headers["content-type"] = "text/event-stream; charset=utf-8"
       @headers["cache-control"] = 'no-cache'
-      @headers["connection"] = 'close'
       reader, writer = IO.pipe
       @body = Stream::Reader.new(reader)
-      @stream = true
       writer = Stream::Writer.new(writer)
       if block_given?
         begin

@@ -51,6 +51,12 @@ module Jaguar::HTTP1
 
     end
 
+    def stream(**args, &blk)
+      @stream = true
+      @headers["connection"] = 'close'
+      super(**args, &blk)
+    end
+
     private
 
     def encode(&action)
