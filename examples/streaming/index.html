@@ -1,0 +1,31 @@
+<html>
+  <head> 
+    <title>Os Lusíadas</title> 
+    <meta charset="utf-8" />
+    <style>
+      pre {
+        text-align: center;
+      }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script> 
+  </head> 
+  <body>
+    <article>
+      <pre id="book">
+      </pre>
+    </article>
+    <script>
+      // reading
+      var es = new EventSource('/activity');
+      es.onmessage = function(e) { 
+        var data = JSON.parse(e.data);
+        console.log(data)
+        var element = $('<em></em>');
+        element.text(data.text);
+        element.addClass(data.codes.join(' '));
+        
+        $('#book').append(element) 
+      };
+    </script>
+  </body>
+</html>

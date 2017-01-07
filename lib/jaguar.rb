@@ -23,6 +23,7 @@ require "jaguar/server"
 
 require "jaguar/http/headers"
 require "jaguar/http/response"
+require "jaguar/http/stream"
 
 require "jaguar/http1/headers"
 require "jaguar/http1/handler"

@@ -7,6 +7,7 @@ class Jaguar::HTTP1::HTTPServerTest < ContainerTest
   include Requests::ChunkedGet
   include Requests::KeepAliveGet
   include Requests::UpgradeGet
+  include Requests::StreamGet
 
   include Requests::PlainPost
 

@@ -38,6 +38,17 @@ module Jaguar::HTTP
       end
     end
 
+    def stream!
+      return if @stream
+      @headers["content-type"] = "text/event-stream; charset=utf-8"
+      @headers["cache-control"] = 'no-cache'
+      @headers["connection"] = 'close'
+      reader, writer = IO.pipe
+      @body = Stream::Reader.new(reader)
+      @stream = true
+      Stream::Writer.new(writer)
+    end
+
     private
 
     def encode(&action)

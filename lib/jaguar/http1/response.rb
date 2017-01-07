@@ -46,7 +46,7 @@ module Jaguar::HTTP1
       elsif @headers.get("content-length").empty?
         # this should never happen, as responses should come with the
         # header already filled in.
-        @headers.add("transfer-encoding", "chunked")
+        @headers.add("transfer-encoding", "chunked") unless @stream
       end
 
     end
