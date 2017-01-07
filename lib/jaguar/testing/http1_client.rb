@@ -11,7 +11,7 @@ module Jaguar::HTTP1
       @conn.send :do_finish
     end 
  
-    def request(verb, path, headers: {}, body: nil)
+    def request(verb, path, version: nil, headers: {}, body: nil)
       # disable accept encoding unless specified
       request = case verb 
       when :get  then Net::HTTP::Get.new(URI(path))
@@ -23,6 +23,10 @@ module Jaguar::HTTP1
         request[conv] = v
       end
       request.body = body if body
+      if version
+        # hail monkey-patch
+        @conn.instance_variable_set(:@curr_http_version, version)
+      end
       response = @conn.request(request)
       Response.new(status: response.code.to_i,
                    headers: response.to_hash,

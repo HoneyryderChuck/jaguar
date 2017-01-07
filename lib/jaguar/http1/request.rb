@@ -22,7 +22,6 @@ module Jaguar::HTTP1
       LOG { to_s(debug: true) }
     end
 
-
     def to_s(*args)
       if args.first.respond_to?(:[]) && args.first[:debug]
         "HTTP1 #{url} #{verb}\n" +

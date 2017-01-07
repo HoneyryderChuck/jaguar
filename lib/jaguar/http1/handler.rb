@@ -28,7 +28,8 @@ module Jaguar::HTTP1
       else
         # TODO: what to do if upgrade is not supported? 
       end
-      @action.call(request, response)
+      response.pre_process(request)
+      @action.call(request, response) unless response.status >= 500
       response.post_process(request)
 
       response.flush(@transport)

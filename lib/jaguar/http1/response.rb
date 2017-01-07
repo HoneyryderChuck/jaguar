@@ -19,6 +19,14 @@ module Jaguar::HTTP1
       end
     end
 
+    def pre_process(request)
+      super
+      if request.version < "1.1"
+        @status = 505 # version not supported
+        @headers["content-length"] = 0
+      end
+    end
+
     def post_process(request)
       super
 

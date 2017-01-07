@@ -1,6 +1,7 @@
 require_relative "../test_container"
 
 class Jaguar::HTTP1::HTTPServerTest < ContainerTest
+  include Requests::UnsupportedVersions
 
   include Requests::PlainGet
   include Requests::EncodingGet
