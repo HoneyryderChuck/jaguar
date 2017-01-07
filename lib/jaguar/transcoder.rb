@@ -9,13 +9,11 @@ module Jaguar
     end
 
     def self.preferred=(encodings)
-      # only set once
-      raise "preferred encodings already set" if defined?(@preferred)
       @preferred = Array(encodings)
     end
 
     def self.choose(encodings)
-      encoding = select(PREFERRED, encodings)
+      encoding = select(preferred, encodings)
       encoder  = case encoding
       when "gzip" then GZIP
       when "deflate" then Deflate

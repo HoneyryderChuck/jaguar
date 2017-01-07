@@ -30,6 +30,7 @@ module Requests
       assert content_encoding(response) != nil, "response encoding is unexpected"
       assert content_encoding(response).include?("gzip"), "response encoding is unexpected"
     end
+
     def test_encoding_deflate
       server.run do |req, rep|
         rep.body = %w(Right)
@@ -60,6 +61,25 @@ module Requests
       assert response.status == 200, "response status code is unexpected"
       verify_vary_accept_encoding(response)
       assert content_encoding(response) == nil, "response encoding is unexpected"
+    end
+
+    def test_encoding_disabled
+      encodings = Jaguar::Transcoder.preferred
+
+      Jaguar::Transcoder.preferred = %w(identity)
+      server.run do |req, rep|
+        rep.body = %w(Right)
+      end 
+
+      response = client.request(:get,"#{server_uri}/", 
+                                     headers: {"accept" => "*/*",
+                                               "accept-encoding" => "gzip"})
+
+      assert response.status == 200, "response status code is unexpected"
+      verify_vary_accept_encoding(response)
+      assert content_encoding(response) == nil, "response encoding is unexpected"
+    ensure
+      Jaguar::Transcoder.preferred = encodings if encodings
     end
 
     private
