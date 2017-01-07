@@ -3,11 +3,11 @@ module Requests
 
     def test_stream_get
       server.run do |req, rep|
-        streamio = rep.stream!
-        streamio.emit_data("bang", false)
-        sleep 0.5
-        streamio.emit_data("bang2")
-        streamio.close
+        rep.stream do |streamio|
+          streamio.emit_data("bang", false)
+          sleep 0.5
+          streamio.emit_data("bang2")
+        end
       end
 
       sleep 1 

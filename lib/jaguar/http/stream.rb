@@ -18,7 +18,7 @@ module Jaguar::HTTP
         while line = gets
           yield line
         end
-      rescue Errno::EPIPE
+      ensure 
         close
       end
 

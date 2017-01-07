@@ -38,7 +38,7 @@ module Jaguar::HTTP
       end
     end
 
-    def stream!
+    def stream(keep_open: false)
       return if @stream
       @headers["content-type"] = "text/event-stream; charset=utf-8"
       @headers["cache-control"] = 'no-cache'
@@ -46,7 +46,16 @@ module Jaguar::HTTP
       reader, writer = IO.pipe
       @body = Stream::Reader.new(reader)
       @stream = true
-      Stream::Writer.new(writer)
+      writer = Stream::Writer.new(writer)
+      if block_given?
+        begin
+          yield writer
+        ensure
+          writer.close unless keep_open
+        end
+      else
+        writer
+      end
     end
 
     private
