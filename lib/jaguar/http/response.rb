@@ -17,6 +17,7 @@ module Jaguar::HTTP
       # set default headers (adapted from webrick http response)
       @headers["server"] ||= "Jaguar/#{Jaguar::VERSION} (Ruby/#{RUBY_VERSION}/#{RUBY_RELEASE_DATE}"
       @headers["date"] ||= Time.now.httpdate
+      @headers["content-type"] ||= "text/plain"
 
       # rework content-length/transfer-encoding
       # Determine the message length (RFC2616 -- 4.4 Message Length)
