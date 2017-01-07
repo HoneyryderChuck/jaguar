@@ -11,14 +11,11 @@ module Jaguar::HTTP2
       @server << initial if initial
       if upgrade
         upgrade!(upgrade)
-      else
-        loop do
-          data = transport.readpartial(4096)
-          @server << data
-        end
       end
-    rescue EOFError
-      @transport.close
+    end
+
+    def <<(bytes)
+      @server << bytes
     end
 
     private

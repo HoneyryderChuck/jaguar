@@ -69,7 +69,18 @@ module Jaguar
     end
 
     def handle_http2(sock, action, initial: nil, upgrade: nil)
-      HTTP2::Handler.new(sock, initial: initial, upgrade: upgrade, &action)
+      handler = HTTP2::Handler.new(sock, initial: initial, upgrade: upgrade, &action)
+      async(:feed_handler, handler, sock) unless upgrade
+    end
+
+    def feed_handler(handler, sock)
+      loop do
+        data = sock.readpartial(16_384)
+        handler << data
+      end
+    rescue EOFError
+      puts "closing"
+      sock.close
     end
 
     def LOG(&msg)
