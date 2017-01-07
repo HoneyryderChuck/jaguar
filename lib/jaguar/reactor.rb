@@ -79,7 +79,6 @@ module Jaguar
         handler << data
       end
     rescue EOFError
-      puts "closing"
       sock.close
     end
 
