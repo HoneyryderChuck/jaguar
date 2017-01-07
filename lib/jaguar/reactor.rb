@@ -65,6 +65,7 @@ module Jaguar
           sock.wait_readable
         end
       end
+      sock.close
     end
 
     def handle_http2(sock, action, initial: nil, upgrade: nil)
