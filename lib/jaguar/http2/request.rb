@@ -47,6 +47,7 @@ module Jaguar::HTTP2
     end
 
     def on_headers(h)
+      LOG { "receiving headers: #{h}" }
       @headers = HTTP2::Headers.new(Hash[h]) 
     end
 
