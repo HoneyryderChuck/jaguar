@@ -43,6 +43,7 @@ config = Jaguar::Config.load do
   bind "https://localhost:9292"
   ssl_cert File.read("test/support/ssl/server.crt")
   ssl_key  File.read("test/support/ssl/server.key")
+  preferred_encodings %w(identity)
 end
 #container = Jaguar::Container.new(uri, ssl_cert: cert, ssl_key: key)
 container = Jaguar::Container.new(config.uri, config.options)

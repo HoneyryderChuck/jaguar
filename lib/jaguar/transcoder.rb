@@ -5,22 +5,26 @@ module Jaguar
     PREFERRED = %w(gzip deflate identity).freeze
 
     def self.preferred
-      @preferred ||= PREFERRED
+      @preferred ||= []
     end
 
     def self.preferred=(encodings)
       @preferred = Array(encodings)
     end
 
+    def self.handlers
+      @handlers ||= {}
+    end
+
+    def self.register(encoding, handler)
+      handlers[encoding] = handler
+      preferred << encoding
+    end
+
     def self.choose(encodings)
-      encoding = select(preferred, encodings)
-      encoder  = case encoding
-      when "gzip" then GZIP
-      when "deflate" then Deflate
-      when "identity", nil then Identity 
-      else
-        raise "Unsupported encoding"
-      end
+      encoding = select(preferred, encodings) || "identity"
+      encoder  = handlers[encoding] ||
+        raise("#{encoding}: unsupported encoding")
       [encoding, encoder]
     end
 
@@ -58,5 +62,13 @@ module Jaguar
 
       return (encoding_candidates & available_encodings)[0]
     end
+
+    require "jaguar/transcoder/identity"
+    require "jaguar/transcoder/gzip"
+    require "jaguar/transcoder/deflate"
+
+    register "gzip",     GZIP
+    register "deflate",  Deflate
+    register "identity", Identity
   end
 end

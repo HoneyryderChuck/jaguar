@@ -38,6 +38,3 @@ require "jaguar/http2/response"
 require "jaguar/http2/promise"
 
 require "jaguar/transcoder"
-require "jaguar/transcoder/identity"
-require "jaguar/transcoder/gzip"
-require "jaguar/transcoder/deflate"
