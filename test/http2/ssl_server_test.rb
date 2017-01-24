@@ -7,6 +7,7 @@ class Jaguar::HTTP2::SSLServerTest < ContainerTest
   include Requests::StreamGet
 
   include Requests::PlainPost
+  include Requests::MultipartPost
 
   private
   def app

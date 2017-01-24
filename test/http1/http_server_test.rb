@@ -11,6 +11,8 @@ class Jaguar::HTTP1::HTTPServerTest < ContainerTest
   include Requests::StreamGet
 
   include Requests::PlainPost
+  include Requests::DecodingPost
+  include Requests::MultipartPost
 
   private
  
