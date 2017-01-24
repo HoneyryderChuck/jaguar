@@ -1,9 +1,14 @@
 require_relative "test_helper"
 
 class ContainerTest < Minitest::Test
+  include CreateCerts
   private
   def setup
     Celluloid.boot
+  end
+
+  def certs_dir
+    File.join("test", "support", "certs")
   end
 
   def teardown

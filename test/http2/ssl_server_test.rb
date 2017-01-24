@@ -10,9 +10,20 @@ class Jaguar::HTTP2::SSLServerTest < ContainerTest
   include Requests::MultipartPost
 
   private
+
+  def setup
+    super
+    create_certs
+  end
+
+  def teardown
+    super
+    delete_certs
+  end
+
   def app
-    @app ||= Jaguar::Container.new(server_uri, ssl_cert: File.read("test/support/ssl/server.crt"),
-                                               ssl_key:  File.read("test/support/ssl/server.key"))
+    @app ||= Jaguar::Container.new(server_uri, ssl_cert: File.read(server_cert_path),
+                                               ssl_key:  File.read(server_key_path))
   end
 
   def server_uri
@@ -25,7 +36,9 @@ class Jaguar::HTTP2::SSLServerTest < ContainerTest
       sock = TCPSocket.new(uri.host, uri.port)
 
       ctx = OpenSSL::SSL::SSLContext.new
-      ctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      ctx.ca_file = ca_cert_path
+      ctx.cert = OpenSSL::X509::Certificate.new(File.read(client_cert_path))
+      ctx.key  = OpenSSL::PKey::RSA.new(File.read(client_key_path))
 
       ctx.npn_protocols = %w(h2)
 
