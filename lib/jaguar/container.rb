@@ -41,40 +41,39 @@ module Jaguar
     def build_server(options={})
       options = @options.merge(options)
       sock_server = case @uri.scheme
-      when "http"
+      when "http", "https"
         server = TCPServer.new(@uri.host, @uri.port)
         server.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
         server.setsockopt(Socket::SOL_SOCKET,Socket::SO_REUSEADDR, true)
-        server
-      when "https"
-        raise "must pass ssl certificate" unless options[:ssl_cert]
-        raise "must pass ssl key" unless options[:ssl_key]
+        
+        if @uri.scheme == "https"
+          raise "must pass ssl certificate" unless options[:ssl_cert]
+          raise "must pass ssl key" unless options[:ssl_key]
  
-        ctx = OpenSSL::SSL::SSLContext.new
-        ctx.cert = OpenSSL::X509::Certificate.new(options.delete(:ssl_cert))
-        ctx.key  = OpenSSL::PKey::RSA.new(options.delete(:ssl_key))
+          ctx = OpenSSL::SSL::SSLContext.new
+          ctx.cert = OpenSSL::X509::Certificate.new(options.delete(:ssl_cert))
+          ctx.key  = OpenSSL::PKey::RSA.new(options.delete(:ssl_key))
 
 
-        if http2?
-          ctx.ssl_version = :TLSv1_2
-          ctx.options = OpenSSL::SSL::SSLContext::DEFAULT_PARAMS[:options]
-          ctx.ciphers = OpenSSL::SSL::SSLContext::DEFAULT_PARAMS[:ciphers]
-          ctx.alpn_protocols = %w(h2)
+          if http2?
+            ctx.ssl_version = :TLSv1_2
+            ctx.options = OpenSSL::SSL::SSLContext::DEFAULT_PARAMS[:options]
+            ctx.ciphers = OpenSSL::SSL::SSLContext::DEFAULT_PARAMS[:ciphers]
+            ctx.alpn_protocols = %w(h2)
   
-          ctx.alpn_select_cb = proc do |protocols|
-            raise "Protocol h2 is required" if protocols.index("h2").nil?
-            "h2"
-          end
+            ctx.alpn_select_cb = proc do |protocols|
+              raise "Protocol h2 is required" if protocols.index("h2").nil?
+              "h2"
+            end
       
-          ctx.tmp_ecdh_callback = proc do |*_args|
-            OpenSSL::PKey::EC.new "prime256v1"
+            ctx.tmp_ecdh_callback = proc do |*_args|
+              OpenSSL::PKey::EC.new "prime256v1"
+            end
           end
-        end
 
-        server = TCPServer.new(@uri.host, @uri.port)
-        server.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
-        server.setsockopt(Socket::SOL_SOCKET,Socket::SO_REUSEADDR, true)
-        OpenSSL::SSL::SSLServer.new(server, ctx)
+          server = OpenSSL::SSL::SSLServer.new(server, ctx)
+        end
+        server
       when "unix" # TODO: support for unix socket over ssl????
         UNIXServer.new(@uri.host)
       else
