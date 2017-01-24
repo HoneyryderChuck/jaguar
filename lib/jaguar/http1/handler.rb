@@ -49,12 +49,16 @@ module Jaguar::HTTP1
 
     def body
       Enumerator.new do |y|
+        # the leftovers of reading the headers
         chunk = @parser.chunk
         y << chunk if chunk
         while !((read(BUFFER_SIZE) == :eof) || @parser.finished?)
           chunk = @parser.chunk
           y << chunk
         end
+        # when parser finishes, the last chunk sometimes stays behind
+        chunk = @parser.chunk
+        y << chunk if chunk
       end
     end
 
